@@ -63,14 +63,14 @@ public class MenuNavigation {
         new JMenuItem("Propriete", iconePropriete)
     };
     private JButton[] item2ToolBar = {
-        new JButton("Nouveau dossier", iconeDossier),
-        new JButton("Nouveau fichier", iconeFichier),
-        new JButton("Copier", iconeCopie),
-        new JButton("Couper", iconeCouper),
-        new JButton("Coller", iconeColler),
-        new JButton("Renommer", iconeRennomer),
-        new JButton("Supprimer", iconeSuppression),
-        new JButton("Propriete", iconePropriete)
+        new JButton("Ajout 1", iconeDossier),
+        new JButton("Ajout 2", iconeFichier),
+        new JButton("Ajout 3", iconeCopie),
+        new JButton("Ajout 4", iconeCouper),
+        new JButton("Ajout 5", iconeColler),
+        new JButton("Ajout 6", iconeRennomer),
+        new JButton("Ajout 7", iconeSuppression),
+        new JButton("Ajout 8", iconePropriete)
     };
 
     public MenuNavigation(){

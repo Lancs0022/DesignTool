@@ -1,52 +1,30 @@
 package dessinables;
 public class Point_2D {
-    private Double abscisse;
-    private Double ordonne;
-    private int absEnPixel;
-    private int ordEnPixel;
+    private int x;
+    private int y;
 
-    
-    public Point_2D(Double abs, Double ord) {
-        this.setX(abs); this.setY(ord);
+    public Point_2D(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
+
     public Point_2D(){
-        this.setX(0.0); this.setY(0.0);
+        this.setX(0); this.setY(0);
     }
 
-    public Double getX(){
-        return this.abscisse;
+    public int getX() {
+        return x;
     }
-    public Double getY(){
-        return this.ordonne;
+
+    public void setX(int x) {
+        this.x = x;
     }
-    public void setX(Double X){
-        this.abscisse = X;
+
+    public int getY() {
+        return y;
     }
-    public void setY(Double Y){
-        this.ordonne = Y;
-    }
-    public int getAbsEnPixel() {
-        return absEnPixel;
-    }
-    public void setAbsEnPixel(int absEnPixel) {
-        this.absEnPixel = absEnPixel;
-    }
-    public Double getAbscisse() {
-        return abscisse;
-    }
-    public void setAbscisse(Double abscisse) {
-        this.abscisse = abscisse;
-    }
-    public Double getOrdonne() {
-        return ordonne;
-    }
-    public void setOrdonne(Double ordonne) {
-        this.ordonne = ordonne;
-    }
-    public int getOrdEnPixel() {
-        return ordEnPixel;  
-    }
-    public void setOrdEnPixel(int setOrdEnPixel) {
-        this.ordEnPixel = setOrdEnPixel;
+
+    public void setY(int y) {
+        this.y = y;
     }
 }

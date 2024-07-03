@@ -1,8 +1,9 @@
 package dessinables;
 
-import java.awt.Graphics2D;
-
+import java.awt.Graphics;
+import java.util.List;
 
 public abstract class Figure {
-    public void dessiner(Graphics2D graphique){};
+    public void dessiner(Graphics g) {}
+    public abstract List<Point> getPoints();
 }

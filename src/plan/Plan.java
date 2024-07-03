@@ -1,84 +1,63 @@
 package plan;
+
+import dessinables.Dessin;
+import dessinables.Point;
+import outils.manipList;
+
 import javax.swing.JPanel;
-
-import dessinables.Point_2D;
-import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Plan extends JPanel{
-    protected int pixelParUnite;
-    protected Point_2D centre = new Point_2D();
-    public Plan () {
-    //     System.out.println("-- Constructeur avec paramètres vide --");
-    setUnitePx(40);
-    //     int largeurFenetre = this.getWidth();
-    //     int hauteurFenetre = this.getHeight();        
-    //     System.out.println("hauteur de la fenetre = " + hauteurFenetre + "\nLargeur de la fenetre = " + largeurFenetre);
-    //     System.out.println("hauteur de la fenetre/2 = " + hauteurFenetre/2 + "\nLargeur de la fenetre/2 = " + largeurFenetre/2);
-    //     centre.setX(0.0); centre.setY(0.0);
-    //     centre.setAbsEnPixel(largeurFenetre/2);
-    //     centre.setOrdEnPixel(hauteurFenetre/2);
-    }
-    
-    public Point_2D convertirCoordonneesEnPixels(double x, double y) {
-        Point_2D point = new Point_2D(x, y);
-        point.setAbsEnPixel((int) (x*pixelParUnite + centre.getAbsEnPixel()));
-        point.setOrdEnPixel(centre.getOrdEnPixel() - (int) (y*pixelParUnite));
-        return point;
-    }
-    public void convertirCoordonneesEnPixels(Point_2D point){
-        point.setAbsEnPixel((int) (point.getAbsEnPixel()*pixelParUnite + centre.getAbsEnPixel()));
-        point.setOrdEnPixel(centre.getOrdEnPixel() - (int) (point.getOrdEnPixel()*pixelParUnite));
+public class Plan extends JPanel {
+    private List<Dessin> dessins;
+    private BufferedImage image;
+
+    public Plan() {
+        this.dessins = new ArrayList<>();
+        this.image = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
     }
 
-    public double getUnitePx() {
-        return pixelParUnite;
+    public void ajouterDessin(Dessin dessin) {
+        manipList.addElement(this.dessins, dessin);
+        redraw();
     }
-    public void setUnitePx(int unitePx) {
-        this.pixelParUnite = unitePx;
+
+    private void redraw() {
+        Graphics g = image.getGraphics();
+        g.clearRect(0, 0, image.getWidth(), image.getHeight());
+        for (Dessin dessin : dessins) {
+            dessin.dessiner(g);
+        }
+        g.dispose();
+        repaint();
     }
-    public Point_2D getCentre() {
-        return centre;
-    }
-    public void setCentre(Point_2D centre) {
-        this.centre = centre;
-    }
-    
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        // Définir le centre au milieu du panneau
-        centre.setAbsEnPixel(this.getWidth() / 2);
-        centre.setOrdEnPixel(this.getHeight() / 2);
-        System.out.println("hauteur de la fenetre = " + this.getHeight() + "\nLargeur de la fenetre = " + this.getWidth());
-
-        cadrillageDynamique(g);
+        g.drawImage(image, 0, 0, null);
     }
 
-    private void cadrillageDynamique(Graphics g){
-        // Dessiner le grillage centré
-        g.setColor(Color.LIGHT_GRAY);
+    @Override
+    public Dimension getPreferredSize() {
+        int maxX = 800; // Taille minimale en X
+        int maxY = 600; // Taille minimale en Y
 
-        // Dessiner les lignes horizontales
-        for (int y = centre.getOrdEnPixel(); y < getHeight(); y += pixelParUnite) {
-            g.drawLine(0, y, getWidth(), y);
-        }
-        for (int y = centre.getOrdEnPixel(); y > 0; y -= pixelParUnite) {
-            g.drawLine(0, y, getWidth(), y);
-        }
-
-        // Dessiner les lignes verticales
-        for (int x = centre.getAbsEnPixel(); x < getWidth(); x += pixelParUnite) {
-            g.drawLine(x, 0, x, getHeight());
-        }
-        for (int x = centre.getAbsEnPixel(); x > 0; x -= pixelParUnite) {
-            g.drawLine(x, 0, x, getHeight());
+        for (Dessin dessin : dessins) {
+            List<Point> points = dessin.getAllPoints();
+            for (Point point : points) {
+                if (point.getX() > maxX) {
+                    maxX = point.getX();
+                }
+                if (point.getY() > maxY) {
+                    maxY = point.getY();
+                }
+            }
         }
 
-        // Dessiner les lignes de croix au centre
-        g.setColor(Color.RED);
-        g.drawLine(centre.getAbsEnPixel(), 0, centre.getAbsEnPixel(), getHeight());
-        g.drawLine(0, centre.getOrdEnPixel(), getWidth(), centre.getOrdEnPixel());
+        return new Dimension(maxX + 20, maxY + 20); // Ajouter une marge de 20 pixels
     }
 }

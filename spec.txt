@@ -1,0 +1,150 @@
+On nous a donné un projet où l'on doit créer un logiciel de design qui pourra générer des plan de maisons en 2D. Pour le moment je vais me focaliser sur les éléments graphiques de bases à implémenter.
+Voici quelques classes qu'il faut considérer. 
+
+- Plan : qui sera l'élément centrale qui est un JPanel qui contiendra les dessins en question. Ce JPanel peut s'étendre très loin et ayant une grande surface accessible en avec un scroll. mieux au fur et à mesure qu'on s'écarte de la position 0.0, le scroll commence à apparaître et à devenir plus petit. Et au contraire si on se rapproche de la position initiale et qu'il n'y a aucun dessin, en bas le scroll diminue.
+
+- Dessin : qui est un classe qui contiendra une collection de classe Figure 
+
+- Figure : Je crée la classe Figure pour vecteur et points c'est ici qu'on va definir la méthode dessiner que tout les autres classes filles auront. Elle est abstraite et est inclus dans la classe Dessin.
+
+- Geometrie : une classe abstraite mais inclus dans la classe dessin et qui possède une collection de points. Elle hérite de la classe figure.
+
+- Point : qui est une classe qui represente un point d'abscice x et y. On va considérer il hérite de Figure car il peut se dessiner aussi eventuellement.
+
+- Vecteur : qui est une classe qui represente un vecteur de 2 Points et hérite de Figure car il peut se dessiner aussi eventuellement. 
+
+- Polygone : qui possède la particularité d'avoir une collection de vecteurs et hérite de Geometrie et possédant les classes filles suivants. C'est une classe abstraite.
+
+    - Quadrilatère
+        - Rectangle 
+            - Parallelogramme
+        (- Trapèze) Pas indispensable
+        (- Losange) Pas indispensable
+    - Triangle
+
+(Note : On ne considèrera pas la logique selon laquelle : Tout les figures linéaires sont des Polygones. Je les ai mis sous FigureLineaire car ils seront dessinés de façon différents )
+
+- FigureCirculaire : qui a pour classe fille Arc et Cercle et qui possède un attribut angle en degré dont la classe mère est géométrie. C'est une classe abstraite. Un cercle a quelques segments aussi mais pas aussi nombreux et pas necessairement ordonnée comme ceux des FigureLineaire. On va juste dire qu'un FigureCirculaire possède un vecteur qui est son rayon et que ce rayon est affiché ou non.
+
+
+La classe Geometrie contiendra une méthode dessiner qui est abstraite et qui dépendra de comment chaque classe fille sera dessiné. 
+Je vais faire très simple : Pour dessiner des Polygones il suffit de lui tracer ses vecteurs. Pour le Polygone, le constructeur prend en paramètre plusieurs points en nombre indéterminé et enregistre ça dans la liste de points de la classe. Automatiquement, la liste des vecteurs du Polygone est déterminé comme ci-après : Le point n et le point n+1 de la liste de points forme un Vecteur on enregistre ça dans la liste de vecteurs de la classe pour plus tard. J'insite bien sur cette liste de vecteur car après je prévois un intelligence artificielle qui déterminera si 2 chambres d'une maison sont connecté en se référant à leurs vecteurs. 
+les classes qui dérivent du polygone seront construit presque pareil. sauf pour les formes particuliers comme les classes filles d'un Quadrilatère qui devront se construire avec des points et des vecteurs aussi mais il faut que les vecteurs 1 & 3 et 2 & 4 sont alignés et orthogonaux pour un Rectangle et juste alignés pour un Parallelogramme.
+(Je vais peut-être être amené à couper des vecteurs en 2 parties comme ceci : on place 2 points quelque part sur le vecteur et on efface la ligne dessiné sur le vecteur formé par ces 2 lignes mais ce n'est qu'un détail pas important pour le moment). 
+
+Pour les cerles ils doivent recevoir le rayon (est un vecteur) et l'angle en paramètre. 
+
+Pour les demi-cercles c'est un peut compliqué il faut 2 angles pour marquer la partie visible du cercle et 2 vecteur rayon aux extremités. Les demi-cercles et les cercles ont des options qui leurs permettent de cacher ou non ces vecteurs rayons. 
+
+Quand au moyen de les dessiner(La méthode dessiner()), elle prendra un Graphics g ou un Graphics2D pourquoi pas en paramètre. De ce fait tous les Figures doivent avoir un attribut du même type pour stocker comment ils vont être dessiné. 
+
+Pour un point ça sera un ovale circulaire et non creux
+Pour un vecteur une ligne
+Pour les classes qui utilisent des vecteurs il faut dessiner chaque vecteurs dans sa collection 
+
+J'ai d'autres spécificités pour les éléments géométriques. Les Polygones peuvent ajouter, supprimer, ou modifier n'importe lequel de ses points. Ce qui a pour conséquence de reconstruire la collection de vecteur en consequence et la reconstitution de dessin généré par dessiner(). Je pense que mes classes sont assez robuste pour supporter ajout, suppression et modification avec toutes les mésures qui on été prises.
+
+
+Je crois que ça sera tout pour les dessins et la géometrie maintenant passons à ce qu'adviendra du plan.
+
+J'aime bien ce modèle de plan infini que tu m'as proposé dans un autre discussion :
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+
+public class DrawingApp extends JFrame {
+    private DrawingPanel drawingPanel;
+
+    public DrawingApp() {
+        drawingPanel = new DrawingPanel();
+        JScrollPane scrollPane = new JScrollPane(drawingPanel);
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
+
+        setTitle("Drawing App");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            DrawingApp app = new DrawingApp();
+            app.setVisible(true);
+        });
+    }
+
+    class DrawingPanel extends JPanel {
+        private ArrayList<Point> points;
+
+        public DrawingPanel() {
+            points = new ArrayList<>();
+            setPreferredSize(new Dimension(800, 600));
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    points.add(e.getPoint());
+                    revalidate();
+                    repaint();
+                }
+            });
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            for (Point point : points) {
+                g.fillOval(point.x, point.y, 5, 5);
+            }
+        }
+
+        @Override
+        public Dimension getPreferredSize() {
+            Dimension size = super.getPreferredSize();
+            for (Point point : points) {
+                size.width = Math.max(size.width, point.x + 20);
+                size.height = Math.max(size.height, point.y + 20);
+            }
+            return size;
+        }
+    }
+}
+
+Mais juste le fait qu'il soit extensible et théoriquement infini. Pour les actions on verra plus tard.
+Pour ce qui est de la méthode à utiliser pour dessiner les dessins on va utiliser bufferedImage pour plus de souplesse : 
+
+import javax.swing.JPanel;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+
+public class Plan extends JPanel {
+    private Dessin dessin;
+    private BufferedImage image;
+
+    public Plan() {
+        this.dessin = new Dessin();
+        this.image = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
+    }
+
+    public void ajouterDessin(Dessin dessin) {
+        this.dessin = dessin;
+        redraw();
+    }
+
+    private void redraw() {
+        Graphics g = image.getGraphics();
+        g.clearRect(0, 0, image.getWidth(), image.getHeight());
+        dessin.dessiner(g);
+        g.dispose();
+        repaint();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.drawImage(image, 0, 0, null);
+    }
+}
+
+Je ne sais pas si tu pourras générer autant de classe. Au pire on étalera tout ça sur plusieurs prompt
