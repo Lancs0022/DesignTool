@@ -148,3 +148,57 @@ public class Plan extends JPanel {
 }
 
 Je ne sais pas si tu pourras générer autant de classe. Au pire on étalera tout ça sur plusieurs prompt
+
+
+Tout est presque en ordre du côté des dessins. il va maintenant faloir se creser les méninges pour préparer le terrain en vue d'acceuillir les fonctionnalités et les actions reliant MenuNavigation et plan.
+Premièrement, Il faut ajouter une collection associatif dans plan pour contenir les paramètres interchangeable par l'appui des boutons depuis MenuNavigation.
+
+Mais d'abord apportons quelques modifications au plan.
+Je veux créér une variable pouvant contenir les paramètres du plan. Par exemple le nombre de pixel pour 1 mètre dans le plan, la couleur des éléments à dessiner, le mode de saisie (création, destruction ou modification)... pour le moment je n'ai pas trop d'idées sur les fonctionnalités que je vais mettre en place mais je verrai au fur et à mesure. Mon souci c'est que je ne sais pas quel genre de variable est ce que je vais bien pouvoir utiliser pour ça... un Map ? un objet ? Un simple tableau ? La seule chose que je sais c'est qu'il y aura plusieurs variables clé & valeur. Je tends plutôt vers un objet ne contenant que des attributs publique mais c'est pas pratique d'avoir un objet avec des éléments publics a ce qu'il paraît...
+
+Il me manque encore le plus important dans le projet. Les objets représentant les éléments d'un plan de maison. J'ai encore quelques doutes sur le positionnement de ces nouvelles classes à considérer par rapport au classe Figure et ses filles...
+Bon après avoir réfléchi j'ai décidé qu'un élément du plan est une classe fille de la classe Dessin. De cette façon, l'élément du plan pourra être dessiné faicilement sur le plan comme étant un Dessin et la structure des classes déjà existantes restent intacte.
+Donc ElementDuPlan est une classe qui englobera les classes qui composent le figure d'un plan de maison.
+Il manipulera la classe figure pour déterminer comment il va dessiner tel ou tel élément. On pourrait lui donner une méthode howToDraw pour empiler des figures entre eux. Aussi, il y aura deux catégories d'éléments du plan : les conteneurs et les contenus. Un conteneur peut avoir plusieurs contenus et un contenu peut aussi être un conteneur de la façon suivante : Un terrain est un conteneur qui peut contenir plusieurs maisons. Les maisons peuvent contenir des conteneurs de type chambre mais aussi des contenus comme une porte, un éscalier une fenêtre... Il faudrait aussi considérer 2 types de contenus : les contenus qui sont collés sur le bord des conteneurs comme les portes, fenêtres, et les contenus libres qui peuvent être collés ou non comme les éscaliers et objets divers comme les lits...
+Qu'est ce que t'en pense ?
+
+Maintenant qu'une bonne partie des choses sont en place place à l'organisation de l'ajout d'objets
+
+On va revenir sur les éléments du plan maintenant. C'est assez complexe de définir l'ordre des éléments avec conteneur et contenu alors j'ai pensé à ceci : des interfaces contenu et conteneur pour pouvoir définir un élément du plan comme étant à la fois conteneur et contenu. Donc les chambres, terrains, maison qui sont des conteneurs seront directement dérivés de leur classe mère ElementDuPlan au même niveau que les portes, fenêtres, escaliers, autres objets libres.
+
+Donc les conteneurs ont une liste de contenus et on pourra faire du CRUD sur les contenus dans un conteneur. Il y a toujours la classe ManipList.java pour manipuler cette liste. Les conteneurs ont des comportements spéciaux. Ils peuvent vérifier qu'un autre conteneur ou contenu sont collés ou non à eux. Voici les chose à prendre en compte : deux maisons peuvent être collés mais les côtés (Vecteurs de la maison) qui est collé ne sont pas égaux vecteurement parlant. Il faut donc qu'on vérifie si les deux vecteurs sont allignés sur une même droite pour voir s'ils sont allignés. Puisque cette fonctionnalité traite deux vecteurs, on va créér une autre classe dans le package outils qui pourrait aussi être statique et qui s'occupe de faire ce calcul. Donc dans cette classe, pour l'instant, il n'y aura que 2 méthodes : vectSontAlligne(Vecteur v1, Vecteur v2) et vectSontEgaux(Vecteur v1, Vecteur v2). J'envisage de mettre les méthodes pour mesurer les vecteurs dedans aussi. Je ne peux pas mesurer un vecteur individuellement avec l'hierarchie de mes classes mais cette classe spécialisé qui peux faire des traitements pourra accéder à toutes les couches de mes piles de classe. Donc finalement, ajoute une méthode pour mésurer un vecteur dans cette classes de calcul. Il faudra ensuite faire les mésures au niveau de Plan car c'est lui qui a pixelParMetre qui est l'unité de mesure. 
+
+Finalement, 2 contenus peuvent aussi être accollés... alors que faire ? Et, remarque, pixelParMetre est un int. Fais aussi des commentaires sur comment je pourrais faire et si mes logiques sont bonnes 
+
+//--------
+Pour répondre à votre question sur l'utilisation de classes vs. interfaces pour les contenus et les conteneurs, voici une analyse détaillée :
+Classes vs. Interfaces
+
+    Interfaces :
+        Avantages :
+            Flexibilité : Permet à différentes classes de différentes hiérarchies d'implémenter les mêmes comportements.
+            Polymorphisme : Facilite l'utilisation du polymorphisme, permettant de traiter des objets de différentes classes de manière uniforme.
+        Inconvénients :
+            Implémentation obligatoire : Toutes les classes implémentant l'interface doivent fournir une implémentation de ses méthodes, ce qui peut entraîner du code répétitif.
+            Pas de stockage d'état : Les interfaces ne peuvent pas stocker d'état, ce qui nécessite souvent des classes supplémentaires pour gérer l'état.
+
+    Classes :
+        Avantages :
+            Encapsulation : Permet de regrouper l'état et le comportement.
+            Héritage : Facilite la réutilisation du code via l'héritage.
+        Inconvénients :
+            Rigidité : Plus rigide que les interfaces en termes de hiérarchie de classe, ce qui peut limiter la flexibilité.
+
+Adaptation à vos exigences
+
+Pour respecter vos exigences de gestion des contenus et des conteneurs, voici comment vous pouvez structurer vos classes :
+
+    Contenu (interface) :
+        Déclarez les méthodes de base que tous les contenus doivent implémenter.
+
+    Conteneur (interface) :
+        Extendez l'interface Contenu et ajoutez des méthodes spécifiques aux conteneurs (comme la gestion des contenus internes).
+
+    Classes concrètes :
+        Implémentez les interfaces Contenu et Conteneur dans des classes concrètes qui encapsulent l'état et les comportements spécifiques.
+-------//

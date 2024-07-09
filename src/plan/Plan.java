@@ -1,27 +1,35 @@
 package plan;
 
 import dessinables.Dessin;
-import dessinables.Point;
-import outils.manipList;
+import dessinables.geometrie.Point;
+import controleurs.Observable;
+import controleurs.Observateur;
+import outils.ManipList;
 
 import javax.swing.JPanel;
+
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Plan extends JPanel {
+public class Plan extends JPanel implements Observable{
     private List<Dessin> dessins;
+    private ParametresPlan parametres;
+    private ArrayList<Observateur> listObservateur = new ArrayList<Observateur>();
+    
     private BufferedImage image;
 
     public Plan() {
+        parametres.setPixelsParMetre(50);
         this.dessins = new ArrayList<>();
         this.image = new BufferedImage(800, 600, BufferedImage.TYPE_INT_ARGB);
     }
 
     public void ajouterDessin(Dessin dessin) {
-        manipList.addElement(this.dessins, dessin);
+        ManipList.addElement(this.dessins, dessin);
         redraw();
     }
 
@@ -39,6 +47,11 @@ public class Plan extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.drawImage(image, 0, 0, null);
+    }
+
+    @SuppressWarnings("unused")
+    private void dessinerCadrillage(Graphics g){
+        g.setColor(Color.LIGHT_GRAY);
     }
 
     @Override
@@ -59,5 +72,21 @@ public class Plan extends JPanel {
         }
 
         return new Dimension(maxX + 20, maxY + 20); // Ajouter une marge de 20 pixels
+    }
+
+    @Override
+    public void addObservateur(Observateur obs) {
+        this.listObservateur.add(obs);
+    }
+
+    @Override
+    public void updateObservateur() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateObservateur'");
+    }
+
+    @Override
+    public void delObservateur() {
+        this.listObservateur = new ArrayList<Observateur>();
     }
 }

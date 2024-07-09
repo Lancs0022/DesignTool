@@ -1,4 +1,4 @@
-package dessinables;
+package dessinables.geometrie;
 
 import java.util.List;
 

@@ -1,6 +1,10 @@
 package dessinables;
 
 import java.util.List;
+
+import dessinables.geometrie.Figure;
+import dessinables.geometrie.Point;
+
 import java.awt.Graphics;
 import java.util.ArrayList;
 

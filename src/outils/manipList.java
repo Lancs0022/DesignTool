@@ -2,7 +2,7 @@ package outils;
 
 import java.util.List;
 
-public class manipList {
+public class ManipList {
 
     // Méthode pour ajouter un élément à la fin de la liste
     public static <T> void addElement(List<T> list, T element) {

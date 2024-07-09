@@ -1,4 +1,4 @@
-package dessinables;
+package trash;
 public class Point_2D {
     private int x;
     private int y;

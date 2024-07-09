@@ -4,13 +4,14 @@ import javax.swing.JButton;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
-public class MenuNavigation {
+import controleurs.Observateur;
+
+public class MenuNavigation implements Observateur{
     private JMenuBar BarreDeMenu = new JMenuBar();
     private JToolBar toolbar;
     private JTextField barreChemin = new JTextField(20);
@@ -152,29 +153,13 @@ public class MenuNavigation {
         return details;
     }
 
-/*----------------------------------------------------------- Methodes de manipulation de fichier --------------------------------------------------------------- */
+    @Override
+    public void update() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'update'");
+    }
 
-
-    @SuppressWarnings("unused")
-    private String demanderNomElement() {
-        String nouveauNom = JOptionPane.showInputDialog("Nom du nouvel élément :");
-        if (nouveauNom != null && nouveauNom.trim().isEmpty()) {
-            afficherErreur("Le nom de l'élément ne peut pas être vide.");
-            return null;
-        }
-        return nouveauNom;
-    }
-    
-    @SuppressWarnings("unused")
-    private void afficherMessage(String message) {
-        JOptionPane.showMessageDialog(null, message);
-    }
-    
-    private void afficherErreur(String erreur) {
-        JOptionPane.showMessageDialog(null, erreur, "Erreur", JOptionPane.ERROR_MESSAGE);
-    }
 }
-
 
 // 
     // public void interactionSurItem(AbstractButton[] item){
