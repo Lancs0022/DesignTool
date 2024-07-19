@@ -18,6 +18,10 @@ public class Point extends Figure{
         this.setX(0); this.setY(0);
     }
 
+    public double distance(Point other) {
+        return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
+    }
+
     public int getX() {
         return x;
     }
@@ -33,7 +37,12 @@ public class Point extends Figure{
     public void setY(int y) {
         this.y = y;
     }
-    
+
+    public void translate(int dx, int dy) {
+        this.x += dx;
+        this.y += dy;
+    }
+
     @Override
     public void dessiner(Graphics g) {
         g.fillOval(x - 2, y - 2, 4, 4); // Un point comme un petit cercle

@@ -157,7 +157,7 @@ Mais d'abord apportons quelques modifications au plan.
 Je veux créér une variable pouvant contenir les paramètres du plan. Par exemple le nombre de pixel pour 1 mètre dans le plan, la couleur des éléments à dessiner, le mode de saisie (création, destruction ou modification)... pour le moment je n'ai pas trop d'idées sur les fonctionnalités que je vais mettre en place mais je verrai au fur et à mesure. Mon souci c'est que je ne sais pas quel genre de variable est ce que je vais bien pouvoir utiliser pour ça... un Map ? un objet ? Un simple tableau ? La seule chose que je sais c'est qu'il y aura plusieurs variables clé & valeur. Je tends plutôt vers un objet ne contenant que des attributs publique mais c'est pas pratique d'avoir un objet avec des éléments publics a ce qu'il paraît...
 
 Il me manque encore le plus important dans le projet. Les objets représentant les éléments d'un plan de maison. J'ai encore quelques doutes sur le positionnement de ces nouvelles classes à considérer par rapport au classe Figure et ses filles...
-Bon après avoir réfléchi j'ai décidé qu'un élément du plan est une classe fille de la classe Dessin. De cette façon, l'élément du plan pourra être dessiné faicilement sur le plan comme étant un Dessin et la structure des classes déjà existantes restent intacte.
+Bon après avoir réfléchi j'ai décidé qu'un élément du plan est une classe fille de la classe Dessin. De cette façon, l'élément du plan pourra être dessiné facilement sur le plan comme étant un Dessin et la structure des classes déjà existantes restent intacte.
 Donc ElementDuPlan est une classe qui englobera les classes qui composent le figure d'un plan de maison.
 Il manipulera la classe figure pour déterminer comment il va dessiner tel ou tel élément. On pourrait lui donner une méthode howToDraw pour empiler des figures entre eux. Aussi, il y aura deux catégories d'éléments du plan : les conteneurs et les contenus. Un conteneur peut avoir plusieurs contenus et un contenu peut aussi être un conteneur de la façon suivante : Un terrain est un conteneur qui peut contenir plusieurs maisons. Les maisons peuvent contenir des conteneurs de type chambre mais aussi des contenus comme une porte, un éscalier une fenêtre... Il faudrait aussi considérer 2 types de contenus : les contenus qui sont collés sur le bord des conteneurs comme les portes, fenêtres, et les contenus libres qui peuvent être collés ou non comme les éscaliers et objets divers comme les lits...
 Qu'est ce que t'en pense ?
@@ -202,3 +202,345 @@ Pour respecter vos exigences de gestion des contenus et des conteneurs, voici co
     Classes concrètes :
         Implémentez les interfaces Contenu et Conteneur dans des classes concrètes qui encapsulent l'état et les comportements spécifiques.
 -------//
+
+Après ça, il faudrait une méthode qui peut me permettre d'aligner automatiquement un contenu sur un autre. Par exemple : Pour dessiner quelque chose sur le plan, il y a une formulaire qu'on impose à l'utilisateur pour savoir ce qu'il veut pour sa maison. Une maison avec 2 pièces et un salon par exemple donc il y a 3 conteneurs pour les chambres et le salon. Il y aura une petite intelligence artificielle qui se chargera d'aligner les 3 chambres selon des dispositions déjà définis. Cet intelligence artificielle devra donc pouvoir savoir prendre le vecteur d'un conteneur et le copier sur un autre pour avoir 2 pièces collés. Il faudrait dans ce cas que l'intelligence puisse créér une polygone personnalisé en spécifiant que la prochaine pièce doit passer après le polygone courant et dans un certain sens. Un autre constructeur devrait donc être requis pour Polygone afin qu'il puisse se dessiner à côté de la polygone courante. Mais le problème dans ce cas c'est que ça doit être à cette classe intelligente d'étudier tout ça et de donner une polygone accollé à un Polygone donné. En réalité la logique pour savoir si deux Composants sont collés ou non devrait se trouver sur cette classe je crois non ? Comme ça il respecte bien son rôle de manipulateur d'objet... Je ne veux pas vraiment d'implémentation ici. Je ne fais que développer une idée et il faut que tu me conseilles sur le meilleur moyen d'implémenter tout ça. Si on reprend où est ce qu'il faut ajouter cet intelligence, il faudrait l'ajouter dans le plan et, soit il est un objet de plan, dans ce cas on stock temporairement les dessins dans un attribut local de la classe intelligente pour les copier au plan ensuite, soit il englobe la classe Plan et la classe formulaire qui envoies les ordres de contruction et il pourra directement écrire dans le plan. J'aimerais cependant avoir des thread différents pour les classes qui envoient des ordres de construction et le Plan car le plan a beaucoup de travail à faire. Il doit notamment se redessiner à la moindre modification et écouter des evenements de la souris et aussi de la barre d'outil que je ferrai plus tard
+
+Pour le toolBar, voici ce qu'il faut y ajouter :
+- Un bouton avec un icone de souris pour la selection
+    - Lorsque l'input mode est reglé sur selection, quand on clique sur le bord d'un conteneur, Les points sur les bords du conteneur deviennent des figures de type Point. Les points seront plus grosses pour pouvoir les manipuler facilement. 
+    Quand on clique sur cet icone de selection, ça modifie l'attribut ParametresPlan.input en "select". Le comportement du listener se transforme comme suit : 
+        - D'abord on active l'écoute de la souris. Au survol de la souris sur le vecteur d'un dessin, l'icone de la souris se change en main. On augmente la largeur cliquable du vecteur de quelques pixels pour permettre à l'utilisateur de ne pas galérer à selectionner 1 pixel de large de vecteur. Quand on clique près d'un vecteur, ça localise son objet d'origine c'est à dire : le dessin qui contient ce vecteur. On priorise les conteneurs du plus haut degré s'il y a conflit de vecteurs entre un conteneur et un contenu. Si c'est un conflit entre 2 conteneurs ou contenus du même niveau alors c'est le premier trouvé qui sera selectionné. Quand on clique sur un vecteur donc on selectionne son objet parent. Une fois qu'un objet est selectionné, on le sort de la liste ou bien on mémorise son index pour le trouver plus tard et il faut ajouter mettre dans ParametresPlan un attribut objetSelectionne qui est de type dessin et qui a l'objet actuellement selectionné (dessin)
+        Lorsqu'on clic sur aucun objet alors objetSelectionne deviens vide.
+        Un objet selectionné on affiche les points sur les bords de l'objetSelectionne. 
+        1 - Lors d'un clic de la souris sur les points grossis sur les bords, on déplace le point suivant la position de la souris jusqu'à ce qu'on relache la souris. Lors du relache, l'objet est toujours selectionné.
+        2 - Lors d'un clic de la souris sur l'une des points grossis sur les bords, on déplace les 2 point adjacents à ce point pour faire un aggrandissement de l'objet suivant la position de la souris jusqu'à ce qu'on relache la souris. Lors du relache, l'objet est toujours selectionné.. On considèrera que tous les objets sont des rectangles car le traitement du comportement d'un Polygone est trop compliqué.
+        Si on tente de superposer deux ElementDuPlan de la même type ex un terrain qui se superpose à un terrain ou une porte qui se superpose avec une porte alors ont génère une erreur.
+
+        - Un autre comportement du mode selection est la manière dont un contenu bouge à l'intérieur d'un conteneur. Tout contenus peut être accollés au bord mais certains doivent être collés sinon ça ne marche pas. Notamment les pièces d'une chambre qui doit avoir un vecteur collé au bord de la maison.
+
+        - Les vecteurs présents dans un conteneurs doivent avoir une sorte de longueur restant en avant et à l'arrière. Par exemple on place une maison Collé au vecteur au nord du terrain et dont le milieu de leurs cotés nords correspondent. Forcément dans ce cas puisque la taille du conteneur est toujours supérieur à celui du contenu, si on considère que A et B sont les 2 points du vecteur nord du terrain et que C et D accollé au vect AB, alors AC et BD sont les vecteurs qui sont toujours libres sur le vecteur sup du terrain et on fait pareil sur chaque face.
+        On peut appliquer la même règle pour les conteneurs de même rang.
+
+        ->* Il me faut un algorithme qui détecte si 2 elements de même niveau se superposent ou non §
+
+- Du coup, quoi mettre comme autre bouton ?
+- Ajouter Terrain,
+- Ajouter Maison,
+- Ajouter Piece,
+- Ajouter Porte,
+- Ajouter Fenetre,
+    - Lorsqu'on utilise ces boutons d'ajouts, ça ouvre une petite fenêtre qui contient que des formulaires sur la façon dont il faudra ajouter ces éléments
+    - Si la longueur et largeur du contenu dépasse celle du conteneur alors la génération est impossible alors on abandonne le dessin 
+    - On positionne une maison au milieu d'un terrain par défaut. Pour se faire, le milieu de la longueur et largeur du terrain doit être aussi celui de la maison. Il faut encore penser à comment faire.
+        - Pour le terrain il faut specifier sa taille longeur et largeur.
+        - Pour la maison, on demande aussi sa longeur et largeur et on a une liste déroulante de terrains pour déterminer quel terrain contiendra la maison
+        - Pour une pièce, on demande quel maison de quel terrain il faut la mettre. 
+        - Pour une porte et une fenêtre, on peut la mettre soit sur une maison, soit sur une pièce et elles y sont accollés au niveau des murs uniquement.
+
+    * Problème comment faire pour les objets libres contenus qui ne seront pas collés à quoi que ce soit ?
+    -> On interdis de les déplacer librement et à la place on va dire qu'on peut leurs changer de pièce.
+
+- Un bouton pour supprimer l'élément selectionné qui supprime le dessin selectionné. Du moins, on pourrait imaginer une liste fait pour stocker les Dessins effacés. On l'efface de la liste dessins et on le fait entrer dans la liste dessinsEfface.
+
+Pour ce qui en est de la classe formulaires qui contiendra comment on ajoute les éléments sur le plan voici comment elle se comportera. Tout d'abord, elle n'ajoute pas directement d'élements à proprement parler. En faite, elle crée les spécifications indiqué par l'utilisateur et la transmet à une autre classe Intelligente qui se chargera d'analyser les spécifications demandé et les execute si ces spécifications sont correctes.
+Et donc pour ce qui l'en est de cette fenêtre de formulaire, il aura des genre de sets. Le set 1 est pour ajouter les champs pour entrer les specs d'un terrain, set2 pour les champs d'ajout d'une maison, set3 pour les champs d'ajout d'une piece, set4 pour les champs d'ajout d'une porte ou d'une fenêtre.
+    - Pour un terrain :
+        - Nom du terrain, (Terrain + chiffre incrémenté par défaut)
+        - Longuer du terrain avec la largeur
+    - Pour une maison :
+        - Le terrain qui acceuillera la maison (Une liste déroulante des noms de terrains déjà existants)
+        - Nom de la maison, (Maison + chiffre incrémenté par défaut)
+        - Longuer de la maison avec la largeur
+    - Pour une piece :
+        - La maison qui acceuille la pièce.
+        - Le nom de la piece (Soit on séléctionne parmis les noms prédéfinis, soit on l'entre manuellement. Par défaut elle vaut chambre + chiffre incrémenté)
+        - La longeur et la largeur de la piece.
+Pour ce qui est de la méthode d'envoi de données je ne sais pas trop comment faire mais est ce que la formation d'un fichier xml pour se faire pourrait être envisageable ?
+
+La classe SuperDrawer est la classe qui se charge de dessiner des dessins selon les ordres qui lui ont été envoyé. 
+- Pour ce qui en est de cet ordre à envoyer c'est pas encore très claire. En effet, il faut trouver comment les données envoyé par le formulaire va être 
+
+Si tu as bien remarqué le contenu de view, enfaite selon les boutons appuyés dans parmis les bouton de la class toolbar dans mon view, si on appuie sur le bouton Terrain par exemple, on affiche la formulaire pour entrer un terrain. Une fois que la formulaire est remplie, elle est envoyé à la classe SuperDrawer qui s'occupe de dessiner le tout et de le stocker dans son attribut Liste<Dessin> en attente d'envoi. Il peut générer des erreurs si la construction ne respecte pas certains contraintes. Le plan a une méthode synchronisé qui ajoute des Dessins depuis une liste<Dessins> à sa liste actuelle et dessine tout ça. On pourrait imaginer rassembler toutes ces classes dans une classe à créér dans le package controleur qui les manipule tous et ajoute des actions.
+
+Bon... cette classe pour dessiner des arcs ne marche décidément pas...
+Pour se faire alors finalement on va faire ceci pour dessiner un arc : 
+
+Pour les spécifications, On va revenir sur l'ancienne version avec private void enregistrerSpecifications() {
+        String nom = nomField.getText();
+        String longueur = longueurField.getText();
+        String largeur = largeurField.getText();
+        String parent = comboBox != null ? comboBox.getSelectedItem().toString() : null;
+
+        xmlSpecs = "<specifications>\n" +
+                "    <nom>" + nom + "</nom>\n" +
+                "    <longueur>" + longueur + "</longueur>\n" +
+                "    <largeur>" + largeur + "</largeur>\n" +
+                (parent != null ? "    <parent>" + parent + "</parent>\n" : "") +
+                "</specifications>";
+    } Mais il va y avoir plus de paramètres à prendre en compte...
+Tout d'abord il faut verifier qu'est ce qu'on va construire ? Il y a déjà plusieurs choix possibles : 
+- Terrain
+    - Maison
+        - Piece
+
+- Objets libres qui peuvent être soit dans un terrain soit dans une piece.
+Tous possède les paramètres suivants :
+- Un nom qui est unique
+- Un Point de départ avec un x et y
+- Un largeur
+- Un longueur
+
+Maison et terrain ont des parents qu'on identifie par leurs noms
+
+J'ai réfléchi et finalement je vais faire une refonte de la classe formulaire. Je ne vais plus m'embêter à traiter du xml pour l'instant. On va du coup changer son nom en Constructeur et les données qui sont envoyés via submit sont directement traités par lui même. On créera directement des objets correspondants (Objets, Terrains, Maison, Pieces, etc) avec des dimensions convenables. Je vais également effacer la classe Contenu et Conteneur car c'est très lourd à mettre en place et ça ne resoud même pas entièrement les problèmes qu'il y a. A la place, on va tout mettre dans la classe ElementDuPlan. Donc voici la classe ElementDuPlan pour le moment :
+
+package dessinables.elementsplan;
+
+import java.awt.Graphics;
+
+import dessinables.Dessin;
+import dessinables.geometrie.Figure;
+import dessinables.geometrie.Point;
+import dessinables.geometrie.RectangleEpais;
+
+public abstract class ElementDuPlan extends Dessin{
+    protected double largeur, hauteur;
+    protected Point ptDepart;
+    protected String nom;
+    protected float epaisseur;
+    protected ElementDuPlan parent;
+
+    public ElementDuPlan(Point pointDepart, double largeur, double hauteur, String nom, ElementDuPlan parent) {
+        this.parent = parent;
+        this.largeur = largeur;
+        this.hauteur = hauteur;
+        this.nom = nom;
+        this.ptDepart = pointDepart;
+        this.epaisseur = 5.0f;
+        
+        this.getFigures().add(new RectangleEpais(getPtDepart(), (int) largeur, (int) hauteur, this.epaisseur));
+    }
+
+    public ElementDuPlan(Point pointDepart, double largeur, double hauteur, String nom) {
+        this.parent = null;
+        this.largeur = largeur;
+        this.hauteur = hauteur;
+        this.nom = nom;
+        this.ptDepart = pointDepart;
+        this.epaisseur = 5.0f;
+
+        this.getFigures().add(new RectangleEpais(getPtDepart(), (int) largeur, (int) hauteur, this.epaisseur));
+    }
+
+    public double getLargeur() {
+        return largeur;
+    }
+
+    public void setLargeur(double largeur) {
+        this.largeur = largeur;
+    }
+
+    public double getHauteur() {
+        return hauteur;
+    }
+
+    public void setHauteur(double hauteur) {
+        this.hauteur = hauteur;
+    }
+
+    public Point getPtDepart() {
+        return ptDepart;
+    }
+
+    public void setPtDepart(Point ptDepart) {
+        this.ptDepart = ptDepart;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public float getEpaisseur() {
+        return epaisseur;
+    }
+
+    public void setEpaisseur(float epaisseur) {
+        this.epaisseur = epaisseur;
+    }
+
+    public void dessiner(Graphics g) {
+        for (Figure figure : figures) {
+            figure.dessiner(g);
+        }
+    }
+}
+
+En ce qui concerne le deuxième constructeur de RectangleEpais, je crois que tout est bon. ce que je fais dans le deuxième constructeur c'est de construire un rectangle à l'aide de sa largeur, de sa hauteur et du point de début qui sera le point le plus à haut et à gauche. La largeur c'est en faite le segment horizontal du rectangle et hauteur la verticale. Les 4 points du rectangle sont ainsi déterminé automatiquement. C'est très important pour la suite du projet... notamment pour savoir si deux rectangles ne se chevauchent pas, on détermine un intervale de points (p1 et p3) dans ce cas ci qui délimite la zone d'un rectangle déjà défini mais je me demande encore comment je vais faire ça. Il y a les classes suivants comme suite de tout ce qu'on a déjà vu
+
+Maintenant répare la classe drawer : package controleurs;
+
+import dessinables.Dessin;
+import dessinables.elementsplan.ElementDuPlan;
+import dessinables.elementsplan.Maison;
+import dessinables.elementsplan.Piece;
+import dessinables.elementsplan.conteneur.Terrain;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+
+public class Drawer implements Runnable {
+    private JFrame frame;
+    private JPanel panel;
+    private JComboBox<String> comboBox;
+    private JTextField nomField;
+    private JTextField xField;
+    private JTextField yField;
+    private JTextField longueurField;
+    private JTextField largeurField;
+    private JButton submitButton;
+    private String currentType;
+    private ActionListener submitAction;
+
+    public Drawer() {
+        initializeForm();
+    }
+
+    @Override
+    public void run() {
+        frame.setVisible(true);
+    }
+
+    private void initializeForm() {
+        frame = new JFrame("Constructeur");
+        panel = new JPanel(new GridLayout(7, 2));
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(300, 250);
+
+        nomField = new JTextField();
+        xField = new JTextField();
+        yField = new JTextField();
+        longueurField = new JTextField();
+        largeurField = new JTextField();
+        submitButton = new JButton("Soumettre");
+
+        frame.add(panel);
+
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (submitAction != null) {
+                    submitAction.actionPerformed(e);
+                }
+            }
+        });
+    }
+
+    public void setTerrainFormFields(List<Dessin> terrainsExistants) {
+        panel.removeAll();
+        currentType = "terrain";
+
+        panel.add(new JLabel("Nom du terrain:"));
+        nomField.setText("Terrain " + (terrainsExistants.size() + 1));
+        panel.add(nomField);
+
+        addCommonFields();
+
+        panel.add(submitButton);
+
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    public void setMaisonFormFields(List<Dessin> terrainsExistants, List<Dessin> maisonsExistantes) {
+        panel.removeAll();
+        currentType = "maison";
+
+        panel.add(new JLabel("Terrain:"));
+        String[] terrains = new String[terrainsExistants.size()];
+        for (int i = 0; i < terrainsExistants.size(); i++) {
+            terrains[i] = ((ElementDuPlan) terrainsExistants.get(i)).getNom();
+        }
+        comboBox = new JComboBox<>(terrains);
+        panel.add(comboBox);
+
+        panel.add(new JLabel("Nom de la maison:"));
+        nomField.setText("Maison " + (maisonsExistantes.size() + 1));
+        panel.add(nomField);
+
+        addCommonFields();
+
+        panel.add(submitButton);
+
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    public void setPieceFormFields(List<Dessin> maisonsExistantes) {
+        panel.removeAll();
+        currentType = "piece";
+
+        panel.add(new JLabel("Maison:"));
+        String[] maisons = new String[maisonsExistantes.size()];
+        for (int i = 0; i < maisonsExistantes.size(); i++) {
+            maisons[i] = ((ElementDuPlan) maisonsExistantes.get(i)).getNom();
+        }
+        comboBox = new JComboBox<>(maisons);
+        panel.add(comboBox);
+
+        panel.add(new JLabel("Nom de la pièce:"));
+        nomField.setText("Chambre " + (maisonsExistantes.size() + 1));
+        panel.add(nomField);
+
+        addCommonFields();
+
+        panel.add(submitButton);
+
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    private void addCommonFields() {
+        panel.add(new JLabel("X:"));
+        panel.add(xField);
+        panel.add(new JLabel("Y:"));
+        panel.add(yField);
+        panel.add(new JLabel("Longueur:"));
+        panel.add(longueurField);
+        panel.add(new JLabel("Largeur:"));
+        panel.add(largeurField);
+    }
+
+    public void setSubmitAction(ActionListener submitAction) {
+        this.submitAction = submitAction;
+    }
+
+    // Méthodes pour créer les objets correspondants directement
+    public ElementDuPlan createElement() {
+        String nom = nomField.getText();
+        int x = Integer.parseInt(xField.getText());
+        int y = Integer.parseInt(yField.getText());
+        int longueur = Integer.parseInt(longueurField.getText());
+        int largeur = Integer.parseInt(largeurField.getText());
+
+        switch (currentType) {
+            case "terrain":
+                return new Terrain(nom, x, y, longueur, largeur);
+            case "maison":
+                String terrainParent = comboBox.getSelectedItem().toString();
+                return new Maison(nom, x, y, longueur, largeur, terrainParent);
+            case "piece":
+                String maisonParent = comboBox.getSelectedItem().toString();
+                return new Piece(nom, x, y, longueur, largeur, maisonParent);
+            default:
+                return null;
+        }
+    }
+}
+Oui je l'ai renommé comme ça. Ce que tu as mis comme paramètres du constructeur ici ne correspond pas à ce qu'il faut. On va également ajouter des contraintes à chaque construction. Tout d'abord le point de départ du terrain est fixé sur (100, 100) on va dire. Puis on regarde si il n'y a pas déjà objet plan qui se trouve là. S'il y a déjà quelque chose la où on veut mettre le terrain alors on choisis de déplacer le point de début en dehors de celui qui se trouve déjà sur celui choisi. On essaie de se décaler sur la gauche pour voir s'il y a déjà quelque chose. sur la nouvelle emplacement on revérifie s'il n'y a pas déjà un terrain et ainsi de suite. Sauf si tu trouves un algorithme plus optimisé pour éviter la superposition. Je pense qu'il est mieux de scanner tous les terrains puis de déterminer chaque intervalle de points de chaque terrain puis on regarde les espaces encore vide o`l'on peut encore poser le terrain avec sa longeur et hauteur de manière à ce qu'elle ne se superpose sur aucun terrain. On ne vérifie que la superposition d'un élément avec un élément du même type de cette manière le terrain et ses composants sont encapsulés. Il faut ensuite reporter la logique sur les autres éléments fils (Maison entre maison) Les éléments fils ne doivent pas dépasser la dimension de celui de leur parent. Pour les Pieces et seulement pour les pièces, une contrainte s'ajoute les pieces doivent toujours être collés aux bords de la maison, mais deux pieces ne doivent pas se superposer. Quand aux portes et aux fenêtres, eux doivent toujours être collé sur une pièce 

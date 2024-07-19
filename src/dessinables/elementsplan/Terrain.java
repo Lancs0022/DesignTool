@@ -1,14 +1,22 @@
 package dessinables.elementsplan;
 
-import java.awt.Graphics;
+import dessinables.geometrie.Point;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Terrain extends Conteneur {
-    public Terrain() {
-        // Logique spécifique pour un terrain
+public class Terrain extends ElementDuPlan {
+    private List<Maison> maisons;
+
+    public Terrain(Point pointDepart, int largeur, int hauteur, String nom) {
+        super(pointDepart, largeur, hauteur, nom);
+        this.maisons = new ArrayList<>();
     }
 
-    @Override
-    public void howToDraw(Graphics g) {
-        // Logique pour dessiner un terrain
+    public void ajouterMaison(Maison maison) {
+        maisons.add(maison);
+    }
+
+    public List<Maison> getMaisons() {
+        return maisons;
     }
 }

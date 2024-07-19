@@ -9,9 +9,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
-import controleurs.Observateur;
 
-public class MenuNavigation implements Observateur{
+public class MenuNavigation{
     private JMenuBar BarreDeMenu = new JMenuBar();
     private JToolBar toolbar;
     private JTextField barreChemin = new JTextField(20);
@@ -35,10 +34,12 @@ public class MenuNavigation implements Observateur{
 
     private JMenu option1 = new JMenu("Fichiers");
     private JMenu option2 = new JMenu("Edition");
-    
+
     private JMenuItem[] item1 = {
         new JMenuItem("Ouvrir une nouvelle fenetre", iconeNewfenetre),
-        new JMenuItem("Ouvrir Powershell", iconeOpenPowershell),
+        new JMenuItem("Nouveau", iconeOpenPowershell),
+        new JMenuItem("Ouvrir", iconeOpenPowershell),
+        new JMenuItem("Sauvegarder", iconeOpenPowershell),
         new JMenuItem("Fermer", iconeFermer),
     };
 
@@ -63,15 +64,16 @@ public class MenuNavigation implements Observateur{
         new JMenuItem("Supprimer", iconeSuppression),
         new JMenuItem("Propriete", iconePropriete)
     };
+
     private JButton[] item2ToolBar = {
-        new JButton("Ajout 1", iconeDossier),
-        new JButton("Ajout 2", iconeFichier),
-        new JButton("Ajout 3", iconeCopie),
-        new JButton("Ajout 4", iconeCouper),
-        new JButton("Ajout 5", iconeColler),
-        new JButton("Ajout 6", iconeRennomer),
-        new JButton("Ajout 7", iconeSuppression),
-        new JButton("Ajout 8", iconePropriete)
+        new JButton("Ajout 1"),
+        new JButton("Ajout 2"),
+        new JButton("Ajout 3"),
+        new JButton("Ajout 4"),
+        new JButton("Ajout 5"),
+        new JButton("Ajout 6"),
+        new JButton("Ajout 7"),
+        new JButton("Ajout 8")
     };
 
     public MenuNavigation(){
@@ -112,7 +114,7 @@ public class MenuNavigation implements Observateur{
             this.popupMenu.add(item);
         }
     }
-    
+
     public JMenuBar getMenu(){
         return this.BarreDeMenu;
     }
@@ -152,13 +154,6 @@ public class MenuNavigation implements Observateur{
         }
         return details;
     }
-
-    @Override
-    public void update() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
-    }
-
 }
 
 // 

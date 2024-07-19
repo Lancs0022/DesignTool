@@ -5,6 +5,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
+import controleurs.Controleur;
+import controleurs.Drawer;
 import plan.Plan;
 
 import java.awt.BorderLayout;
@@ -15,8 +17,11 @@ public class Fenetre extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private MenuNavigation menu = new MenuNavigation();
-	private Plan plan;
+	private MenuBar barreMenu = new MenuBar();
+	private ToolBar barreOutils = new ToolBar(1);
+	private ToolBar barreOutils2 = new ToolBar(2);
+	private Plan plan = new Plan();
+	private Controleur controleur = new Controleur(plan, barreOutils, new Drawer());
 
 	public Fenetre() {
 		this.setTitle("Plan designer");
@@ -31,15 +36,15 @@ public class Fenetre extends JFrame {
 		JSplitPane composantsCentre = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		// composantsCentre.setComponentPopupMenu();
         composantsCentre.setLeftComponent(new JScrollPane(new JPanel()));
-		this.plan = new Plan();
         composantsCentre.setRightComponent(plan);
 		composantsCentre.setDividerLocation(200);
 
 		// Mise en place de la barre de menu et du toolbar au nord
 		JPanel composantsNord = new JPanel();
         composantsNord.setLayout(new BorderLayout());
-        composantsNord.add(menu.getMenu(), BorderLayout.NORTH);
-        composantsNord.add(menu.getToolbar(),BorderLayout.CENTER);
+        composantsNord.add(barreMenu.getMenuBar(), BorderLayout.NORTH);
+        composantsNord.add(barreOutils.getToolBar(),BorderLayout.CENTER);
+		composantsNord.add(barreOutils2.getToolBar(), BorderLayout.EAST);
 		// composantsNord.add();
 
 		this.setLayout(new BorderLayout());

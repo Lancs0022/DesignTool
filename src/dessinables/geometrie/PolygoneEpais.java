@@ -7,18 +7,55 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 
-public class PolygoneEpais extends Geometrie{
+public class PolygoneEpais extends Figure{
+    protected List<Vecteur> vecteurs;
+    protected float epaisseur;
+    protected List<Point> points;
 
-    private float épaisseur;
+    public PolygoneEpais(List<Point> points, float epaisseur) {
+        this.points = new ArrayList<Point>(points);
+        this.vecteurs = new ArrayList<>();
+        this.epaisseur = epaisseur;
+        construireVecteurs();
+    }
 
-    public PolygoneEpais(List<Point> points, float épaisseur) {
-        this.points = points;
-        this.épaisseur = épaisseur;
+    private void construireVecteurs() {
+        vecteurs.clear();
+        for (int i = 0; i < points.size(); i++) {
+            Point p1 = points.get(i);
+            Point p2 = points.get((i + 1) % points.size());
+            vecteurs.add(new Vecteur(p1, p2));
+        }
+    }
+
+    public List<Vecteur> getVecteurs() {
+        return vecteurs;
+    }
+
+    public PolygoneEpais() {
+    }
+
+    public void ajouterPoint(Point point) {
+        points.add(point);
+        construireVecteurs();
+        // Logique pour mettre à jour les vecteurs
+    }
+
+    public void supprimerPoint(Point point) {
+        points.remove(point);
+        construireVecteurs();
+        // Logique pour mettre à jour les vecteurs
+    }
+
+    public void modifierPoint(int index, Point nouveauPoint) {
+        points.set(index, nouveauPoint);
+        construireVecteurs();
+        // Logique pour mettre à jour les vecteurs
     }
 
     public void dessiner(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
-        g2.setStroke(new BasicStroke(épaisseur));
+        g2.setStroke(new BasicStroke(epaisseur));
 
         for (int i = 0; i < points.size(); i++) {
             Point p1 = points.get(i);
@@ -27,8 +64,13 @@ public class PolygoneEpais extends Geometrie{
         }
     }
 
+    @Override
+    public List<Point> getPoints() {
+        return points;
+    }
+
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Polygone à Double Épaisseur");
+        JFrame frame = new JFrame("Polygone à Double epaisseur");
         JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -39,7 +81,6 @@ public class PolygoneEpais extends Geometrie{
                 points.add(new Point(200, 100));
                 points.add(new Point(200, 200));
                 points.add(new Point(100, 200));
-                points.add(new Point(5, 50));
 
                 PolygoneEpais polygone = new PolygoneEpais(points, 5f);
                 polygone.dessiner(g);
@@ -51,4 +92,5 @@ public class PolygoneEpais extends Geometrie{
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
+
 }

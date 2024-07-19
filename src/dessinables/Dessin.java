@@ -9,7 +9,7 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 
 public class Dessin {
-    private List<Figure> figures;
+    protected List<Figure> figures;
 
     public Dessin() {
         figures = new ArrayList<>();
@@ -19,10 +19,18 @@ public class Dessin {
         figures.add(figure);
     }
 
+    public void supprimerFigure(Figure figure) {
+        figures.remove(figure);
+    }
+
     public void dessiner(Graphics g) {
         for (Figure figure : figures) {
             figure.dessiner(g);
         }
+    }
+
+    public List<Figure> getFigures() {
+        return figures;
     }
 
     public List<Point> getAllPoints() {

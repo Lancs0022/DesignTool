@@ -1,9 +1,9 @@
 package plan;
 
 import dessinables.Dessin;
+import dessinables.elementsplan.Maison;
+import dessinables.elementsplan.Terrain;
 import dessinables.geometrie.Point;
-import controleurs.Observable;
-import controleurs.Observateur;
 import outils.ManipList;
 
 import javax.swing.JPanel;
@@ -15,10 +15,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Plan extends JPanel implements Observable{
+public class Plan extends JPanel{
     private List<Dessin> dessins;
-    private ParametresPlan parametres;
-    private ArrayList<Observateur> listObservateur = new ArrayList<Observateur>();
+    private ParametresPlan parametres = new ParametresPlan(50, getBackground(), "None");
     
     private BufferedImage image;
 
@@ -31,6 +30,30 @@ public class Plan extends JPanel implements Observable{
     public void ajouterDessin(Dessin dessin) {
         ManipList.addElement(this.dessins, dessin);
         redraw();
+    }
+
+    public List<Dessin> getDessins() {
+        return dessins;
+    }
+
+    public List<Dessin> getTerrains() {
+        List<Dessin> terrains = new ArrayList<>();
+        for (Dessin dessin : dessins) {
+            if (dessin instanceof Terrain) {
+                terrains.add(dessin);
+            }
+        }
+        return terrains;
+    }
+
+    public List<Dessin> getMaisons() {
+        List<Dessin> maisons = new ArrayList<>();
+        for (Dessin dessin : dessins) {
+            if (dessin instanceof Maison) {
+                maisons.add(dessin);
+            }
+        }
+        return maisons;
     }
 
     private void redraw() {
@@ -72,21 +95,5 @@ public class Plan extends JPanel implements Observable{
         }
 
         return new Dimension(maxX + 20, maxY + 20); // Ajouter une marge de 20 pixels
-    }
-
-    @Override
-    public void addObservateur(Observateur obs) {
-        this.listObservateur.add(obs);
-    }
-
-    @Override
-    public void updateObservateur() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateObservateur'");
-    }
-
-    @Override
-    public void delObservateur() {
-        this.listObservateur = new ArrayList<Observateur>();
     }
 }

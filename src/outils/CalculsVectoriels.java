@@ -4,7 +4,7 @@ import dessinables.geometrie.Vecteur;
 import dessinables.geometrie.Point;
 
 public class CalculsVectoriels {
-    public static boolean vectSontAllignes(Vecteur v1, Vecteur v2) {
+    public static boolean vectSontAlignes(Vecteur v1, Vecteur v2) {
         // Calculer les vecteurs
         Point p1 = v1.getP1();
         Point p2 = v1.getP2();
