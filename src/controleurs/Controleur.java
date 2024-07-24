@@ -1,33 +1,21 @@
 package controleurs;
 
-import view.*;
-
-import javax.swing.*;
-
+import view.ToolBar;
 import plan.Plan;
 
+import javax.swing.JButton;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
 public class Controleur {
     private ToolBar toolbar;
-    private Formulaire formulaire;
-    private Drawer drawer;
+    private ToolBar toolBar2;
     private Plan plan;
 
-    public Controleur() {
-        this.toolbar = new ToolBar(1);
-        this.formulaire = new Formulaire();
-        this.drawer = new Drawer();
-        this.plan = new Plan();
-
-        initializeActions();
-    }
-
-    public Controleur(Plan plan, ToolBar toolBar, Drawer drawer) {
+    public Controleur(Plan plan, ToolBar toolBar, ToolBar toolBar2) {
         this.toolbar = toolBar;
-        this.drawer = drawer;
+        this.toolBar2 = toolBar2;
         this.plan = plan;
 
         initializeActions();
@@ -35,48 +23,57 @@ public class Controleur {
 
     private void initializeActions() {
         List<JButton> buttons = toolbar.listButtons();
+        List<JButton> buttons2 = toolBar2.listButtons();
         for (JButton button : buttons) {
             button.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    System.out.println("Un bouton a été appuyé : " + e.getActionCommand());
                     handleButtonAction(e.getActionCommand());
                 }
             });
         }
-
-        formulaire.setSubmitAction(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {}
-        });
-    }
-
-    private void handleButtonAction(String actionCommand) {
-        switch (actionCommand) {
-            case "terrain":
-                formulaire.setFormFields("terrain", plan.getTerrains(), plan.getMaisons());
-                break;
-            case "maison":
-                formulaire.setFormFields("maison", plan.getTerrains(), plan.getMaisons());
-                break;
-            case "piece":
-                formulaire.setFormFields("piece", plan.getTerrains(), plan.getMaisons());
-                break;
-            // Ajouter des cas pour "porte" et "fenetre" si nécessaire
-            default:
-                break;
+        for(JButton button : buttons2){
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e){
+                    System.out.println("Un bouton a été appuyé : " + e.getActionCommand());
+                    handleButtonAction2(e.getActionCommand());
+                }
+            });
         }
     }
 
-    public Formulaire getFormulaire() {
-        return formulaire;
+    private void handleButtonAction(String actionCommand) {
+        System.out.println("Le nouveau thread pour le drawer va être lancé...");
+        Thread ajoutElemnThread = new Thread(new Drawer(actionCommand, plan.getElements(), this.plan));
+        ajoutElemnThread.start();
+        System.out.println("Le thread devrait normalement fonctionner à ce point");
     }
 
-    public void setFormulaire(Formulaire formulaire) {
-        this.formulaire = formulaire;
-    }
-
-    public static void main(String[] args) {
-        Controleur cont = new Controleur();
-        cont.getFormulaire().setFormFields("Terrain", null, null);
+    private void handleButtonAction2(String actionCommand) {
+        int pixelsParMetre = this.plan.getParametres().getPixelsParMetre();
+        switch (actionCommand) {
+            case "Zoom -":
+                if(pixelsParMetre == 5){
+                    break;
+                }
+                else{
+                    this.plan.getParametres().setPixelsParMetre(pixelsParMetre - 5);
+                    this.plan.repaint();
+                }
+            break;
+            
+            case "Zoom +":
+            if(pixelsParMetre > 100){
+                break;
+            }
+            else{
+                this.plan.getParametres().setPixelsParMetre(pixelsParMetre + 5);
+                this.plan.repaint();
+            }
+            default:
+                break;
+        }
     }
 }

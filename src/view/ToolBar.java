@@ -25,10 +25,8 @@ public class ToolBar {
     };
 
     private JButton[] buttonsSet2 = {
-        new JButton("Porte", icones.getPorte()),
-        new JButton("Fenetre", icones.getFenetre()),
-        new JButton("Plus", icones.getPlus()),
-        new JButton("Moins", icones.getMoins())
+        new JButton("Zoom +", icones.getPlus()),
+        new JButton("Zoom -", icones.getMoins())
     };
 
 

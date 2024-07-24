@@ -36,4 +36,33 @@ public class RectangleEpais extends PolygoneEpais{
 
         return new java.awt.Rectangle(minX, minY, maxX - minX, maxY - minY);
     }
+
+    public List<Point> trouverPointsAdjacents(Point point) {
+        if (point.equals(points.get(0))) {
+            return List.of(points.get(3), points.get(0), points.get(1));
+        } else if (point.equals(points.get(1))) {
+            return List.of(points.get(2), points.get(1), points.get(0));
+        } else if (point.equals(points.get(2))) {
+            return List.of(points.get(1), points.get(2), points.get(3));
+        } else if (point.equals(points.get(3))) {
+            return List.of(points.get(0), points.get(3), points.get(2));
+        }
+        return List.of();
+    }
+
+    public int getMinX() {
+        return this.getBounds().x;
+    }
+
+    public int getMinY() {
+        return this.getBounds().y;
+    }
+
+    public int getMaxX() {
+        return this.getBounds().x + this.getBounds().width;
+    }
+
+    public int getMaxY() {
+        return this.getBounds().y + this.getBounds().height;
+    }
 }

@@ -43,6 +43,12 @@ public class Point extends Figure{
         this.y += dy;
     }
 
+    public boolean estProche(Point autrePoint, int tolerance) {
+        int dx = this.x - autrePoint.getX();
+        int dy = this.y - autrePoint.getY();
+        return (dx * dx + dy * dy) <= (tolerance * tolerance);
+    }
+
     @Override
     public void dessiner(Graphics g) {
         g.fillOval(x - 2, y - 2, 4, 4); // Un point comme un petit cercle

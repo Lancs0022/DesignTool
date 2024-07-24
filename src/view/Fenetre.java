@@ -21,7 +21,7 @@ public class Fenetre extends JFrame {
 	private ToolBar barreOutils = new ToolBar(1);
 	private ToolBar barreOutils2 = new ToolBar(2);
 	private Plan plan = new Plan();
-	private Controleur controleur = new Controleur(plan, barreOutils, new Drawer());
+	private Controleur controleur = new Controleur(plan, barreOutils, barreOutils2);
 
 	public Fenetre() {
 		this.setTitle("Plan designer");
@@ -35,7 +35,7 @@ public class Fenetre extends JFrame {
 		// Mise en place du panneau explorateur et de l'arbre cote a cote
 		JSplitPane composantsCentre = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		// composantsCentre.setComponentPopupMenu();
-        composantsCentre.setLeftComponent(new JScrollPane(new JPanel()));
+        composantsCentre.setLeftComponent(new JScrollPane(this.plan));
         composantsCentre.setRightComponent(plan);
 		composantsCentre.setDividerLocation(200);
 

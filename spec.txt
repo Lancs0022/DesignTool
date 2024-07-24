@@ -544,3 +544,81 @@ public class Drawer implements Runnable {
     }
 }
 Oui je l'ai renommé comme ça. Ce que tu as mis comme paramètres du constructeur ici ne correspond pas à ce qu'il faut. On va également ajouter des contraintes à chaque construction. Tout d'abord le point de départ du terrain est fixé sur (100, 100) on va dire. Puis on regarde si il n'y a pas déjà objet plan qui se trouve là. S'il y a déjà quelque chose la où on veut mettre le terrain alors on choisis de déplacer le point de début en dehors de celui qui se trouve déjà sur celui choisi. On essaie de se décaler sur la gauche pour voir s'il y a déjà quelque chose. sur la nouvelle emplacement on revérifie s'il n'y a pas déjà un terrain et ainsi de suite. Sauf si tu trouves un algorithme plus optimisé pour éviter la superposition. Je pense qu'il est mieux de scanner tous les terrains puis de déterminer chaque intervalle de points de chaque terrain puis on regarde les espaces encore vide o`l'on peut encore poser le terrain avec sa longeur et hauteur de manière à ce qu'elle ne se superpose sur aucun terrain. On ne vérifie que la superposition d'un élément avec un élément du même type de cette manière le terrain et ses composants sont encapsulés. Il faut ensuite reporter la logique sur les autres éléments fils (Maison entre maison) Les éléments fils ne doivent pas dépasser la dimension de celui de leur parent. Pour les Pieces et seulement pour les pièces, une contrainte s'ajoute les pieces doivent toujours être collés aux bords de la maison, mais deux pieces ne doivent pas se superposer. Quand aux portes et aux fenêtres, eux doivent toujours être collé sur une pièce 
+
+La création des éléments du plan certes fonctionnent bien mais il y a quelques trucs à rectifier sur la façon dont est construit les éléments du plan. Tout d'abord, les champs x et y du formulaires on va les enlever car Drawer est supposé savoir dessiner les éléments de façon dynamique selon certains contraintes. La position par défaut de la maison dans un terrain est centré au milieu. Donc pour ça, drawer doit devoir prendre le parent de la maison (l'objet terrain qui lui est lié) puis il prends ses dimensions à savoir ses attributs ptDepart, largeur et 1ongueur puis calcule tout ça de la manière suivante : Le point de départ du maison doit se trouver dans le terrain et ou collés aux murs du terrain du moins.
+
+On va se pencher maintenant sur l'ajout des actions de modifications sur ce projet. Lors d'un clic gauche de la souris, on scanne la liste des figures. Pour verifier si le coordonné du souris au clic correspond à celui d'un figure. La detection ne se passe pas que pour les points des rectangles formant l'element, on considère qu'on clique sur un element au niveau du plan quand ses vecteurs sont cliqués. Si il y a conflit entre la selection de 2 objets : si c'est entre un conteneur et son contenu alors c'est le contenu qui sera selectionné par le clic. Si c'est entre 2 elements de même nature alors celui alors on choisis de modifier le dernier créé entre ces 2 la. Au prochain clic l'ancienne selection est abandonné. Lorsqu'un element est selectionné, on peut le redimensionner. On ne prendra en charge que les redimensionnement sur les côtés pour commencer. On ajoute aussi des points observable aux 4 côtés du rectangle formant la figure. Ma classe point se dessine déjà de lui même alors on n'a qu'à dessiner les points composant la figure. package dessinables.geometrie;
+
+import java.awt.Graphics;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
+public class Point extends Figure{
+    private int x;
+    private int y;
+
+    public Point(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public Point(){
+        this.setX(0); this.setY(0);
+    }
+
+    public double distance(Point other) {
+        return Math.sqrt(Math.pow(this.x - other.x, 2) + Math.pow(this.y - other.y, 2));
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public void translate(int dx, int dy) {
+        this.x += dx;
+        this.y += dy;
+    }
+
+    @Override
+    public void dessiner(Graphics g) {
+        g.fillOval(x - 2, y - 2, 4, 4); // Un point comme un petit cercle
+    }
+
+    @Override
+    public String toString() {
+        return "(" + x + ", " + y + ")";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Point point = (Point) o;
+        return x == point.x && y == point.y;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
+    }
+
+    @Override
+    public List<Point> getPoints() {
+        return Collections.singletonList(this);
+    }
+}
+Tant qu'à faire puisqu'un élément du plan possède une liste de figure et que la classe Point est une exstension de Figure, on va ajouter chaque point composant le rectangle de l'element du plan dans la liste de figure et on introduira un boolen afficherPoints qui choisira si l'on dessinera ou non dans la méthode dessiner.
+
