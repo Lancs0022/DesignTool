@@ -53,14 +53,14 @@ public class Controleur {
 
     private void handleButtonAction2(String actionCommand) {
         int pixelsParMetre = this.plan.getParametres().getPixelsParMetre();
+        int pas = 10;
         switch (actionCommand) {
             case "Zoom -":
-                if(pixelsParMetre == 5){
+                if(pixelsParMetre == pas){
                     break;
                 }
                 else{
-                    this.plan.getParametres().setPixelsParMetre(pixelsParMetre - 5);
-                    this.plan.repaint();
+                    this.plan.setPixelsParMetre(pixelsParMetre - pas);
                 }
             break;
             
@@ -69,8 +69,7 @@ public class Controleur {
                 break;
             }
             else{
-                this.plan.getParametres().setPixelsParMetre(pixelsParMetre + 5);
-                this.plan.repaint();
+                this.plan.setPixelsParMetre(pixelsParMetre + pas);
             }
             default:
                 break;

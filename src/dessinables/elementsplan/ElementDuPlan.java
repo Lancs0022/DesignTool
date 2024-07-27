@@ -3,8 +3,9 @@ package dessinables.elementsplan;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.stream.Collectors;
 import java.awt.Color;
+
 import dessinables.geometrie.Figure;
 import dessinables.geometrie.Point;
 import dessinables.geometrie.PolygoneEpais;
@@ -17,7 +18,7 @@ public abstract class ElementDuPlan implements Comparable<ElementDuPlan>{
     protected Point ptDepart;
     protected String nom;
     protected float epaisseur;
-    protected ElementDuPlan parent;
+    protected Conteneur parent;
 
     protected List<Figure> figures;
 
@@ -41,7 +42,7 @@ public abstract class ElementDuPlan implements Comparable<ElementDuPlan>{
         return points;
     }
 
-    public ElementDuPlan(Point pointDepart, double largeur, double hauteur, String nom, ElementDuPlan parent) {
+    public ElementDuPlan(Point pointDepart, double largeur, double hauteur, String nom, Conteneur parent) {
         this.id = idCounter++;
         this.figures = new ArrayList<>();
         this.parent = parent;
@@ -68,18 +69,22 @@ public abstract class ElementDuPlan implements Comparable<ElementDuPlan>{
         System.out.println("Création de l'élément : " + nom + " avec ID : " + id + ", Largeur : " + largeur + ", Hauteur : " + hauteur);
     }
 
-    public boolean intersect(ElementDuPlan autre) {
-        return this.ptDepart.getX() < autre.ptDepart.getX() + autre.largeur &&
-               this.ptDepart.getX() + this.largeur > autre.ptDepart.getX() &&
-               this.ptDepart.getY() < autre.ptDepart.getY() + autre.hauteur &&
-               this.ptDepart.getY() + this.hauteur > autre.ptDepart.getY();
+    public <T extends ElementDuPlan> List<T> getElements(Class<T> type) {
+        if (this instanceof Conteneur) {
+            return ((Conteneur) this).getElementsFilles().stream()
+                .filter(type::isInstance)
+                .map(type::cast)
+                .collect(Collectors.toList());
+        }
+        return List.of(); // Retourne une liste vide si l'élément n'est pas un conteneur
+    }
+
+    public boolean intersect(ElementDuPlan other) {
+        return this.getRectangle().intersects(other.getRectangle());
     }
 
     public boolean contient(Point point) {
-        boolean result = point.getX() >= ptDepart.getX() && point.getX() <= ptDepart.getX() + largeur &&
-                         point.getY() >= ptDepart.getY() && point.getY() <= ptDepart.getY() + hauteur;
-        System.out.println("Le point " + point + " est contenu dans " + this.nom + ": " + result);
-        return result;
+        return this.getRectangle().contient(point);
     }
 
     public void updateDimensions() {
@@ -90,6 +95,24 @@ public abstract class ElementDuPlan implements Comparable<ElementDuPlan>{
             this.ptDepart = new Point(rectangle.getMinX(), rectangle.getMinY());
         }
     }
+
+    public void adapterEchelle(int ancienneValeur, int nouvelleValeur) {
+        System.out.println("largeur avant : " + this.largeur);
+        System.out.println("hauteur avant : " + this.hauteur);
+        System.out.println("ancienneValeur : " + ancienneValeur);
+        System.err.println("nouvelleValeur : " + nouvelleValeur);
+        this.largeur = (this.largeur * nouvelleValeur) / ancienneValeur;
+        this.hauteur = (this.hauteur * nouvelleValeur) / ancienneValeur;
+        System.out.println("largeur après : " + this.largeur);
+        System.out.println("hauteur après : " + this.hauteur);
+
+        System.out.println("Point de depart avant : " + this.ptDepart.toString());
+        this.ptDepart = new Point((int) ((this.ptDepart.getX() * nouvelleValeur) / ancienneValeur),
+                                  (int) ((this.ptDepart.getY() * nouvelleValeur) / ancienneValeur));
+        System.out.println("Point de depart après : " + this.ptDepart.toString());
+        this.getRectangle().mettreAJourDimensions(this.ptDepart , (int) largeur, (int) hauteur);
+    }
+
 
     public void modifierPointFigure(Figure figure, int index, Point nouveauPoint) {
         if (figure instanceof PolygoneEpais) {
@@ -140,6 +163,10 @@ public abstract class ElementDuPlan implements Comparable<ElementDuPlan>{
 
     public void setEpaisseur(float epaisseur) {
         this.epaisseur = epaisseur;
+    }
+
+    public RectangleEpais getRectangle() {
+        return (RectangleEpais) this.figures.get(0);
     }
 
     public void dessiner(Graphics g) {

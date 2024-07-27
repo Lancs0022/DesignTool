@@ -6,7 +6,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 
 import controleurs.Controleur;
-import controleurs.Drawer;
 import plan.Plan;
 
 import java.awt.BorderLayout;
@@ -21,9 +20,9 @@ public class Fenetre extends JFrame {
 	private ToolBar barreOutils = new ToolBar(1);
 	private ToolBar barreOutils2 = new ToolBar(2);
 	private Plan plan = new Plan();
-	private Controleur controleur = new Controleur(plan, barreOutils, barreOutils2);
 
 	public Fenetre() {
+		new Controleur(plan, barreOutils, barreOutils2);
 		this.setTitle("Plan designer");
 		this.setSize(1020, 660);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);

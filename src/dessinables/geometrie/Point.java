@@ -8,6 +8,7 @@ import java.util.Objects;
 public class Point extends Figure{
     private int x;
     private int y;
+    private static int pixelsParMetre;
 
     public Point(int x, int y) {
         this.x = x;

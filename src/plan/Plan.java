@@ -228,4 +228,13 @@ public class Plan extends JPanel {
             elementSelectionne.updateDimensions();
         }
     }
+
+    public void setPixelsParMetre(int pixelsParMetre) {
+        int ancienneValeur = parametres.getPixelsParMetre();
+        parametres.setPixelsParMetre(pixelsParMetre);
+        for (ElementDuPlan element : this.elements) {
+            element.adapterEchelle(ancienneValeur, pixelsParMetre);
+        }
+        repaint();
+    }
 }

@@ -40,7 +40,7 @@ Quand au moyen de les dessiner(La méthode dessiner()), elle prendra un Graphics
 
 Pour un point ça sera un ovale circulaire et non creux
 Pour un vecteur une ligne
-Pour les classes qui utilisent des vecteurs il faut dessiner chaque vecteurs dans sa collection 
+Pour les classes qui utilisent des vecteurs il faut dessiner chaque vecteurs dans sa collection
 
 J'ai d'autres spécificités pour les éléments géométriques. Les Polygones peuvent ajouter, supprimer, ou modifier n'importe lequel de ses points. Ce qui a pour conséquence de reconstruire la collection de vecteur en consequence et la reconstitution de dessin généré par dessiner(). Je pense que mes classes sont assez robuste pour supporter ajout, suppression et modification avec toutes les mésures qui on été prises.
 
@@ -112,7 +112,7 @@ public class DrawingApp extends JFrame {
 }
 
 Mais juste le fait qu'il soit extensible et théoriquement infini. Pour les actions on verra plus tard.
-Pour ce qui est de la méthode à utiliser pour dessiner les dessins on va utiliser bufferedImage pour plus de souplesse : 
+Pour ce qui est de la méthode à utiliser pour dessiner les dessins on va utiliser bufferedImage pour plus de souplesse :
 
 import javax.swing.JPanel;
 import java.awt.Graphics;
@@ -166,7 +166,7 @@ Maintenant qu'une bonne partie des choses sont en place place à l'organisation 
 
 On va revenir sur les éléments du plan maintenant. C'est assez complexe de définir l'ordre des éléments avec conteneur et contenu alors j'ai pensé à ceci : des interfaces contenu et conteneur pour pouvoir définir un élément du plan comme étant à la fois conteneur et contenu. Donc les chambres, terrains, maison qui sont des conteneurs seront directement dérivés de leur classe mère ElementDuPlan au même niveau que les portes, fenêtres, escaliers, autres objets libres.
 
-Donc les conteneurs ont une liste de contenus et on pourra faire du CRUD sur les contenus dans un conteneur. Il y a toujours la classe ManipList.java pour manipuler cette liste. Les conteneurs ont des comportements spéciaux. Ils peuvent vérifier qu'un autre conteneur ou contenu sont collés ou non à eux. Voici les chose à prendre en compte : deux maisons peuvent être collés mais les côtés (Vecteurs de la maison) qui est collé ne sont pas égaux vecteurement parlant. Il faut donc qu'on vérifie si les deux vecteurs sont allignés sur une même droite pour voir s'ils sont allignés. Puisque cette fonctionnalité traite deux vecteurs, on va créér une autre classe dans le package outils qui pourrait aussi être statique et qui s'occupe de faire ce calcul. Donc dans cette classe, pour l'instant, il n'y aura que 2 méthodes : vectSontAlligne(Vecteur v1, Vecteur v2) et vectSontEgaux(Vecteur v1, Vecteur v2). J'envisage de mettre les méthodes pour mesurer les vecteurs dedans aussi. Je ne peux pas mesurer un vecteur individuellement avec l'hierarchie de mes classes mais cette classe spécialisé qui peux faire des traitements pourra accéder à toutes les couches de mes piles de classe. Donc finalement, ajoute une méthode pour mésurer un vecteur dans cette classes de calcul. Il faudra ensuite faire les mésures au niveau de Plan car c'est lui qui a pixelParMetre qui est l'unité de mesure. 
+Donc les conteneurs ont une liste de contenus et on pourra faire du CRUD sur les contenus dans un conteneur. Il y a toujours la classe ManipList.java pour manipuler cette liste. Les conteneurs ont des comportements spéciaux. Ils peuvent vérifier qu'un autre conteneur ou contenu sont collés ou non à eux. Voici les chose à prendre en compte : deux maisons peuvent être collés mais les côtés (Vecteurs de la maison) qui est collé ne sont pas égaux vecteurement parlant. Il faut donc qu'on vérifie si les deux vecteurs sont allignés sur une même droite pour voir s'ils sont allignés. Puisque cette fonctionnalité traite deux vecteurs, on va créér une autre classe dans le package outils qui pourrait aussi être statique et qui s'occupe de faire ce calcul. Donc dans cette classe, pour l'instant, il n'y aura que 2 méthodes : vectSontAlligne(Vecteur v1, Vecteur v2) et vectSontEgaux(Vecteur v1, Vecteur v2). J'envisage de mettre les méthodes pour mesurer les vecteurs dedans aussi. Je ne peux pas mesurer un vecteur individuellement avec l'hierarchie de mes classes mais cette classe spécialisé qui peux faire des traitements pourra accéder à toutes les couches de mes piles de classe. Donc finalement, ajoute une méthode pour mésurer un vecteur dans cette classes de calcul. Il faudra ensuite faire les mésures au niveau de Plan car c'est lui qui a pixelParMetre qui est l'unité de mesure.
 
 Finalement, 2 contenus peuvent aussi être accollés... alors que faire ? Et, remarque, pixelParMetre est un int. Fais aussi des commentaires sur comment je pourrais faire et si mes logiques sont bonnes 
 
@@ -278,7 +278,7 @@ Pour les spécifications, On va revenir sur l'ancienne version avec private void
                 (parent != null ? "    <parent>" + parent + "</parent>\n" : "") +
                 "</specifications>";
     } Mais il va y avoir plus de paramètres à prendre en compte...
-Tout d'abord il faut verifier qu'est ce qu'on va construire ? Il y a déjà plusieurs choix possibles : 
+Tout d'abord il faut verifier qu'est ce qu'on va construire ? Il y a déjà plusieurs choix possibles :
 - Terrain
     - Maison
         - Piece
@@ -622,3 +622,6 @@ public class Point extends Figure{
 }
 Tant qu'à faire puisqu'un élément du plan possède une liste de figure et que la classe Point est une exstension de Figure, on va ajouter chaque point composant le rectangle de l'element du plan dans la liste de figure et on introduira un boolen afficherPoints qui choisira si l'on dessinera ou non dans la méthode dessiner.
 
+Encore une fois tu n'as pas respecté ce que j'avais dis précédemment : RectangleEpais contient tout ce qui parle de test booléen pour les contraintes qui nous concerne : Lors d'un redimensionnement, 3 vérifications se font, d'abord, on vérifie si l'élement déplacé ne dépasse pas son conteneur (Son parent), puis on vérifie s'il n'est pas en collision avec un objet soeur de la list<ElementDuPlan> contenus de son parent et enfin on vérifie si le rapetissement n'est pas trop petit au point d'entraîner un collision entre l'élément redimensionné et ses contenus. Seul terrain ne vérifie pas qu'il dépasse son parent vu que logiquement il n'a aucun parent. Cependant il doit tout de même vérifier les 2 autres contraintes. Terrain et Maison vérifient les 3 contraintes car ils sont à la fois contenu et conteneur et d'ailleurs je devrais peut être faire implémenter à maison et à piece les interfaces Contenu et Conteneur à la fois. Je rappelle : 
+
+Bien on va reparler de la classe Drawer et la manière dont les portes et les fenêtres sont placés. On va parler d'un concept assez simple pour un Conteneur : la face de celui ci. Un conteneur ou plus précisément le rectangle épais qui le compose ont 4 faces qui sont le Nord, le sud l'est et l'ouest. Donc pour placer une porte ou une fenêtre il faut choisir une face où placer, la largeur de la porte ou la fenêtre et enfin la pièce qui le contiendra. Par défaut, on choisira de placer la porte au milieu d'une face. On demande aussi combien de porte ou de fenêtre on veux pour une face. La porte et la fenêtre sera un peu différent des autres éléments car au lieu d'avoir une rectangle pour les représenter, on va avoir un simple drawline avec une épaisseur.

@@ -17,6 +17,13 @@ public class RectangleEpais extends PolygoneEpais{
         super(List.of(p1, p2, p3, p4), epaisseur);
     }
 
+    public void mettreAJourDimensions(Point pointDepart, int nouvelleLargeur, int nouvelleHauteur) {
+        points.set(0, pointDepart);
+        points.set(1, new Point(pointDepart.getX() + nouvelleLargeur, pointDepart.getY()));
+        points.set(2, new Point(pointDepart.getX() + nouvelleLargeur, pointDepart.getY() + nouvelleHauteur));
+        points.set(3, new Point(pointDepart.getX(), pointDepart.getY() + nouvelleHauteur));
+    }
+
     public boolean intersects(RectangleEpais other) {
         return this.getBounds().intersects(other.getBounds());
     }
@@ -35,6 +42,44 @@ public class RectangleEpais extends PolygoneEpais{
         }
 
         return new java.awt.Rectangle(minX, minY, maxX - minX, maxY - minY);
+    }
+
+    // Vérifie si l'élément ne dépasse pas son conteneur
+    public boolean neDepassePasConteneur(RectangleEpais container) {
+        return this.getMinX() >= container.getMinX() &&
+               this.getMaxX() <= container.getMaxX() &&
+               this.getMinY() >= container.getMinY() &&
+               this.getMaxY() <= container.getMaxY();
+    }
+
+    // Vérifie si l'élément n'est pas trop rapetissé
+    public boolean nestPasTropPetit(List<RectangleEpais> contenus) {
+        int minWidth = 0;
+        int minHeight = 0;
+        
+        for (RectangleEpais contenu : contenus) {
+            minWidth = Math.max(minWidth, contenu.getMaxX() - contenu.getMinX());
+            minHeight = Math.max(minHeight, contenu.getMaxY() - contenu.getMinY());
+        }
+
+        return this.getMaxX() - this.getMinX() >= minWidth &&
+               this.getMaxY() - this.getMinY() >= minHeight;
+    }
+
+    // Vérifie si un point est contenu dans le rectangle
+    public boolean contient(Point point) {
+        return point.getX() >= this.getMinX() && point.getX() <= this.getMaxX() &&
+               point.getY() >= this.getMinY() && point.getY() <= this.getMaxY();
+    }
+
+    // Vérifie si l'élément ne présente pas de collision avec un autre élément de même type
+    public boolean enCollisionAvecSesSoeurs(List<RectangleEpais> soeurs) {
+        for (RectangleEpais soeur : soeurs) {
+            if (this != soeur && this.intersects(soeur)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public List<Point> trouverPointsAdjacents(Point point) {

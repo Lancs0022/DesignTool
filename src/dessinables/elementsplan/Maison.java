@@ -4,52 +4,45 @@ import dessinables.geometrie.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Maison extends ElementDuPlan {
-    private Terrain terrain;
-    private List<Piece> pieces;
+public class Maison extends ElementDuPlan implements Conteneur, Contenu {
+    private List<Contenu> contenus;
 
-    public Maison(Point pointDepart, double largeur, double hauteur, String nom, Terrain terrain) {
-        super(pointDepart, largeur, hauteur, nom);
-        this.terrain = terrain;
-        this.pieces = new ArrayList<>();
+    public Maison(Point ptDepart, double largeur, double hauteur, String nom, Conteneur parent) {
+        super(ptDepart, largeur, hauteur, nom, parent);
+        this.contenus = new ArrayList<>();
     }
 
     public boolean peutAjouterPiece(Piece piece) {
         // Vérifier si la pièce est entièrement dans la maison
-        if (piece.ptDepart.getX() < this.ptDepart.getX() ||
-            piece.ptDepart.getY() < this.ptDepart.getY() ||
-            piece.ptDepart.getX() + piece.getLargeur() > this.ptDepart.getX() + this.getLargeur() ||
-            piece.ptDepart.getY() + piece.getHauteur() > this.ptDepart.getY() + this.getHauteur()) {
+        if (!piece.getRectangle().neDepassePasConteneur(this.getRectangle())) {
             System.out.println("Pièce hors des limites de la maison");
-            System.out.println("Pièce: " + piece.ptDepart + ", " + piece.getLargeur() + "x" + piece.getHauteur());
-            System.out.println("Maison: " + this.ptDepart + ", " + this.getLargeur() + "x" + this.getHauteur());
             return false;
         }
-    
-        // Vérifier si la pièce ne se superpose pas avec les pièces existantes
-        for (Piece p : pieces) {
-            if (piece.intersect(p)) {
+
+        // Vérifier si la pièce ne se superpose pas avec les contenus existants
+        for (Contenu contenu : contenus) {
+            if (contenu instanceof Piece && piece.intersect((Piece) contenu)) {
                 System.out.println("Collision détectée avec une pièce existante");
                 return false;
             }
         }
-    
+
         return true;
     }
-    
-    public boolean ajouterPiece(Piece piece) {
-        if (peutAjouterPiece(piece)) {
-            pieces.add(piece);
-            return true;
+
+    @Override
+    public List<Contenu> getElementsFilles() {
+        return contenus;
+    }
+
+    @Override
+    public boolean ajouterElement(ElementDuPlan element) {
+        if (element instanceof Piece) {
+            if (peutAjouterPiece((Piece) element)) {
+                contenus.add((Contenu) element);
+                return true;
+            }
         }
         return false;
-    }
-
-    public Terrain getTerrain() {
-        return terrain;
-    }
-
-    public List<Piece> getPieces() {
-        return pieces;
     }
 }

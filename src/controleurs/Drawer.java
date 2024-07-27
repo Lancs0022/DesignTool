@@ -1,5 +1,7 @@
 package controleurs;
 
+import dessinables.elementsplan.Conteneur;
+import dessinables.elementsplan.Contenu;
 import dessinables.elementsplan.ElementDuPlan;
 import dessinables.elementsplan.Fenetre;
 import dessinables.elementsplan.Maison;
@@ -147,25 +149,19 @@ public class Drawer implements Runnable {
                 showErrorDialog("Veuillez entrer des valeurs numériques valides pour la longueur et la largeur.");
                 return;
             }
-            Point ptDepart = determineStartingPoint((int) longueur, (int) largeur, currentType);
-            System.out.println("Valeur de current type" + currentType);
-
-            ElementDuPlan parent = null;
-            switch (currentType) {
-                case "Maison":
-                    parent = findParentElement(Terrain.class);
-                    break;
-                case "Pièce":
-                    parent = findParentElement(Maison.class);
-                    break;
-                case "Porte":
-                    parent = findParentElement(Piece.class);
-                case "Fenetre":
-                    parent = findParentElement(Piece.class);
-                    break;
-                default:
-                    break;
+    
+            Point ptDepart;
+            Conteneur parent = null;
+    
+            if (!"Terrain".equals(currentType)) {
+                parent = findParentElementByType(currentType);
+                if (parent == null) {
+                    showErrorDialog("Aucun parent sélectionné.");
+                    return;
+                }
             }
+
+            ptDepart = determineStartingPoint((int) longueur, (int) largeur, parent);
 
             try {
                 ElementDuPlan element = createElement(currentType, ptDepart, longueur, largeur, nom, parent);
@@ -178,13 +174,28 @@ public class Drawer implements Runnable {
             }
         }
     }
+    
+
+    private Conteneur findParentElementByType(String elementType) {
+        switch (elementType) {
+            case "Maison":
+                return findParentElement(Terrain.class);
+            case "Pièce":
+                return findParentElement(Maison.class);
+            case "Porte":
+                return findParentElement(Piece.class);
+            case "Fenetre":
+                return findParentElement(Piece.class);
+            default:
+                return null;
+        }
+    }
 
     private void showErrorDialog(String message) {
         JOptionPane.showMessageDialog(frame, message, "Erreur", JOptionPane.ERROR_MESSAGE);
     }
 
-    public ElementDuPlan createElement(String type, Point ptDepart, double largeur, double hauteur, String nom,
-            ElementDuPlan parent) {
+    public ElementDuPlan createElement(String type, Point ptDepart, double largeur, double hauteur, String nom, Conteneur parent) {
         largeur = largeur * localPlan.getParametres().getPixelsParMetre();
         hauteur = hauteur * localPlan.getParametres().getPixelsParMetre();
         try {
@@ -192,24 +203,24 @@ public class Drawer implements Runnable {
                 case "Terrain":
                     return new Terrain(ptDepart, (int) largeur, (int) hauteur, nom);
                 case "Maison":
-                    Maison maison = new Maison(ptDepart, largeur, hauteur, nom, (Terrain) parent);
-                    if (((Terrain) parent).ajouterMaison(maison)) {
+                    Maison maison = new Maison(ptDepart, largeur, hauteur, nom, parent);
+                    if (parent.ajouterElement(maison)) {
                         return maison;
                     } else {
                         throw new IllegalArgumentException(
                                 "Impossible d'ajouter la maison, collision détectée ou hors des limites du terrain.");
                     }
                 case "Pièce":
-                    Piece piece = new Piece(ptDepart, largeur, hauteur, nom, (Maison) parent);
-                    if (((Maison) parent).ajouterPiece(piece)) {
+                    Piece piece = new Piece(ptDepart, largeur, hauteur, nom, parent);
+                    if ((parent.ajouterElement(piece))) {
                         return piece;
                     } else {
                         throw new IllegalArgumentException(
                                 "Impossible d'ajouter la pièce, collision détectée ou hors des limites de la maison.");
                     }
                 case "Fenetre":
-                    Fenetre fenetre = new Fenetre(ptDepart, largeur, hauteur, nom, (Piece) parent);
-                    if (((Piece) parent).ajouterElement(fenetre)) {
+                    Fenetre fenetre = new Fenetre(ptDepart, largeur, hauteur, nom, parent);
+                    if (parent.ajouterElement(fenetre)) {
                         return fenetre;
                     } else {
                         throw new IllegalArgumentException(
@@ -234,25 +245,39 @@ public class Drawer implements Runnable {
                 .orElse(null);
     }
 
-    public Point determineStartingPoint(int longueur, int largeur, String elementType) {
+    private Point determineStartingPoint(int longueur, int largeur, Conteneur parent) {
         int step = 10;
-        for (int x = 0; x < 1000; x += step) {
-            for (int y = 0; y < 1000; y += step) {
+        RectangleEpais parentRect;
+        if(parent != null){
+            parentRect = parent.getRectangle();
+        }
+        else{
+            parentRect = new RectangleEpais(new Point(0, 0), 10000000, 10000000, 1.0f);
+        }
+
+        for (int x = parentRect.getMinX(); x <= parentRect.getMaxX() - longueur; x += step) {
+            for (int y = parentRect.getMinY(); y <= parentRect.getMaxY() - largeur; y += step) {
                 RectangleEpais rect = new RectangleEpais(new Point(x, y), longueur, largeur, 1.0f);
-                if (isPositionFree(rect, elementType)) {
-                    return new Point(x, y);
+                if(parent == null){
+                    if (isPositionFreeForTerrain(rect)) {
+                        return new Point(x, y);
+                    }
                 }
+                else
+                    if (isPositionFree(rect, (Conteneur) parent)) {
+                        return new Point(x, y);
+                    }
             }
         }
-        return new Point(0, 0); // Position par défaut en cas d'échec
+        return new Point(parentRect.getMinX(), parentRect.getMinY()); // Position par défaut en cas d'échec
     }
 
-    private boolean isPositionFree(RectangleEpais rect, String elementType) {
-        Class<? extends ElementDuPlan> typeClass = getTypeClass(elementType);
-        for (ElementDuPlan element : elements) {
-            if (typeClass.isInstance(element) || element.getClass().isAssignableFrom(typeClass)) {
+    public static boolean isPositionFree(RectangleEpais rect, Conteneur parent) {
+        for (Contenu contenu : parent.getElementsFilles()) {
+            if (contenu instanceof ElementDuPlan) {
+                ElementDuPlan element = (ElementDuPlan) contenu;
                 for (Figure figure : element.getFigures()) {
-                    if (((RectangleEpais) figure).intersects(rect)) {
+                    if (figure instanceof RectangleEpais && ((RectangleEpais) figure).intersects(rect)) {
                         return false;
                     }
                 }
@@ -261,18 +286,16 @@ public class Drawer implements Runnable {
         return true;
     }
 
-    private Class<? extends ElementDuPlan> getTypeClass(String elementType) {
-        switch (elementType) {
-            case "Terrain":
-                return Terrain.class;
-            case "Maison":
-                return Maison.class;
-            case "Pièce":
-                return Piece.class;
-            case "Fenetre":
-                return Fenetre.class;
-            default:
-                throw new IllegalArgumentException("Type d'élément inconnu: " + elementType);
+    private boolean isPositionFreeForTerrain(RectangleEpais rect) {
+        for (ElementDuPlan element : elements) {
+            if (element instanceof Terrain) {
+                for (Figure figure : element.getFigures()) {
+                    if (figure instanceof RectangleEpais && ((RectangleEpais) figure).intersects(rect)) {
+                        return false;
+                    }
+                }
+            }
         }
+        return true;
     }
 }

@@ -18,7 +18,7 @@ public class Icones {
         this.plus = new ImageIcon("assets\\icons8-plus-24.png");
         this.porte = new ImageIcon("assets\\icons8-porte-24.png");
         this.fenetre = new ImageIcon("assets\\icons8-fenêtre-ouverte-24.png");
-        this.moins = new ImageIcon("assets/moins.png");
+        this.moins = new ImageIcon("assets\\icons8-moins-24.png");
     }
 
     public ImageIcon getTerrain() {
