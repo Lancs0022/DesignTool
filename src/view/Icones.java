@@ -10,6 +10,7 @@ public class Icones {
     private ImageIcon porte;
     private ImageIcon fenetre;
     private ImageIcon moins;
+    private ImageIcon poubelle;
 
     public Icones() {
         this.terrain = new ImageIcon("assets\\icons8-terrain-24.png");
@@ -19,10 +20,16 @@ public class Icones {
         this.porte = new ImageIcon("assets\\icons8-porte-24.png");
         this.fenetre = new ImageIcon("assets\\icons8-fenêtre-ouverte-24.png");
         this.moins = new ImageIcon("assets\\icons8-moins-24.png");
+        this.poubelle = new ImageIcon("assets\\icons8-poubelle-24.png");
     }
 
     public ImageIcon getTerrain() {
         return terrain;
+    }
+
+    
+    public ImageIcon getPoubelle() {
+        return poubelle;
     }
 
     public ImageIcon getMaison() {

@@ -8,5 +8,6 @@ public interface Conteneur {
     List<Contenu> getElementsFilles();
     boolean ajouterElement(ElementDuPlan element);
     RectangleEpais getRectangle();
+    boolean peutAjouterElementSurFace(Contenu element, String face);
     
 }

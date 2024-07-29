@@ -95,6 +95,19 @@ public class RectangleEpais extends PolygoneEpais{
         return List.of();
     }
 
+    public Vecteur getFaceNord(){
+        return this.vecteurs.get(0);
+    }
+    public Vecteur getFaceEst(){
+        return this.vecteurs.get(1);
+    }
+    public Vecteur getFaceSud(){
+        return this.vecteurs.get(2);
+    }
+    public Vecteur getFaceOuest(){
+        return this.vecteurs.get(3);
+    }
+
     public int getMinX() {
         return this.getBounds().x;
     }

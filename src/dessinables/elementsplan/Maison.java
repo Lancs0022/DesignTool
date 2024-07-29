@@ -45,4 +45,16 @@ public class Maison extends ElementDuPlan implements Conteneur, Contenu {
         }
         return false;
     }
+
+    @Override
+    public String getFace() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getFace'");
+    }
+
+    @Override
+    public boolean peutAjouterElementSurFace(Contenu element, String face) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'peutAjouterElementSurFace'");
+    }
 }

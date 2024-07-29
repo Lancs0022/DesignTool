@@ -47,4 +47,10 @@ public class Terrain extends ElementDuPlan implements Conteneur {
         }
         return false;
     }
+
+    @Override
+    public boolean peutAjouterElementSurFace(Contenu element, String face) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'peutAjouterElementSurFace'");
+    }
 }

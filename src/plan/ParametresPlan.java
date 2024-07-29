@@ -3,7 +3,7 @@ package plan;
 import java.awt.Color;
 
 public class ParametresPlan {
-    private int pixelsParMetre;
+    private static int pixelsParMetre;
     private Color couleurBordTerrain;
     private Color couleurBordMaison;
     private Color couleurBordPiece;
@@ -15,7 +15,7 @@ public class ParametresPlan {
     private String inputMode;
 
     public ParametresPlan() {
-        this.pixelsParMetre = 10;
+        pixelsParMetre = 10;
         this.inputMode = "None";
         this.couleurBordTerrain = Color.GREEN;
         this.couleurBordMaison = new Color(255, 140, 0);
@@ -27,12 +27,12 @@ public class ParametresPlan {
         this.couleurFondPiece = new Color(255, 165, 0, 100);
     }
 
-    public int getPixelsParMetre() {
+    public static int getPixelsParMetre() {
         return pixelsParMetre;
     }
 
     public void setPixelsParMetre(int pixelsParMetre) {
-        this.pixelsParMetre = pixelsParMetre;
+        ParametresPlan.pixelsParMetre = pixelsParMetre;
     }
 
     public String getInputMode() {

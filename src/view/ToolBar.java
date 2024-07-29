@@ -26,7 +26,8 @@ public class ToolBar {
 
     private JButton[] buttonsSet2 = {
         new JButton("Zoom +", icones.getPlus()),
-        new JButton("Zoom -", icones.getMoins())
+        new JButton("Zoom -", icones.getMoins()),
+        new JButton("Supprimer la selection", icones.getPoubelle()),
     };
 
 

@@ -10,6 +10,7 @@ import dessinables.geometrie.Figure;
 import dessinables.geometrie.Point;
 import dessinables.geometrie.PolygoneEpais;
 import dessinables.geometrie.RectangleEpais;
+import dessinables.geometrie.Vecteur;
 
 public abstract class ElementDuPlan implements Comparable<ElementDuPlan>{
     private static int idCounter = 0; // Compteur global pour les IDs
@@ -67,6 +68,16 @@ public abstract class ElementDuPlan implements Comparable<ElementDuPlan>{
 
         this.getFigures().add(new RectangleEpais(getPtDepart(), (int) largeur, (int) hauteur, this.epaisseur));
         System.out.println("Création de l'élément : " + nom + " avec ID : " + id + ", Largeur : " + largeur + ", Hauteur : " + hauteur);
+    }
+
+    public ElementDuPlan(Point pointDepart, double largeur, String face, Conteneur parent){
+        this.figures = new ArrayList<>();
+        this.ptDepart = pointDepart;
+        this.largeur = largeur;
+        this.parent = parent;
+        this.id = idCounter++;
+        this.getFigures().add(new Vecteur(pointDepart, this.largeur, face));
+        System.out.println("Vecteur créé : " + this.getFigures().get(0).toString());
     }
 
     public <T extends ElementDuPlan> List<T> getElements(Class<T> type) {
@@ -203,7 +214,17 @@ public abstract class ElementDuPlan implements Comparable<ElementDuPlan>{
     }
 
     @Override
+    public String toString() {
+        return "Element : " + this.nom + " \nLargeur : " + this.largeur + "\nHauteur : " + this.hauteur + "\nParent : " + this.parent;
+    }
+
+    @Override
     public int hashCode() {
         return Integer.hashCode(id);
+    }
+
+    public Vecteur getVecteur() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getVecteur'");
     }
 }

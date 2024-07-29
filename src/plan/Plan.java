@@ -76,10 +76,11 @@ public class Plan extends JPanel {
             } else if (element instanceof Fenetre) {
                 g.setColor(parametres.getCouleurFenetre());
             }
+            System.out.println("Elements : " + element.toString());
+            element.dessiner(g);
             if (element == elementSelectionne && afficherPoints) {
                 element.afficherPoints(g);
             }
-            element.dessiner(g);
         }
     }
 
