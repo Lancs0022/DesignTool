@@ -1,6 +1,9 @@
 package dessinables.elementsplan;
 
 import dessinables.geometrie.Point;
+import dessinables.geometrie.Vecteur;
+import outils.CalculsVectoriels;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,13 +33,25 @@ public class Maison extends ElementDuPlan implements Conteneur, Contenu {
         return true;
     }
 
+    public boolean peutPlacerOuverture(Ouverture ouverture, Conteneur parent, String face) {
+    Vecteur vecteurOuverture = ouverture.getVecteur();
+    Vecteur faceVecteur = parent.trouverFace(face);
+
+    // Vérifie que l'ouverture est dans les limites de la face
+    return CalculsVectoriels.vectSontAlignes(vecteurOuverture, faceVecteur) &&
+           vecteurOuverture.getP1().getX() >= faceVecteur.getP1().getX() &&
+           vecteurOuverture.getP2().getX() <= faceVecteur.getP2().getX() &&
+           vecteurOuverture.getP1().getY() >= faceVecteur.getP1().getY() &&
+           vecteurOuverture.getP2().getY() <= faceVecteur.getP2().getY();
+}
+
     @Override
     public List<Contenu> getElementsFilles() {
         return contenus;
     }
 
     @Override
-    public boolean ajouterElement(ElementDuPlan element) {
+    public boolean ajouterContenu(ElementDuPlan element) {
         if (element instanceof Piece) {
             if (peutAjouterPiece((Piece) element)) {
                 contenus.add((Contenu) element);
@@ -47,14 +62,14 @@ public class Maison extends ElementDuPlan implements Conteneur, Contenu {
     }
 
     @Override
-    public String getFace() {
+    public boolean ajouterOuverture(Ouverture ouverture) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getFace'");
+        throw new UnsupportedOperationException("Unimplemented method 'ajouterOuverture'");
     }
 
     @Override
-    public boolean peutAjouterElementSurFace(Contenu element, String face) {
+    public void mettreAJourOuverture(Ouverture ouverture) {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'peutAjouterElementSurFace'");
+        throw new UnsupportedOperationException("Unimplemented method 'mettreAJourOuverture'");
     }
 }

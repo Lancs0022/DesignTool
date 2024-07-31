@@ -11,8 +11,8 @@ import dessinables.geometrie.Point;
 import dessinables.geometrie.RectangleEpais;
 import outils.ManipList;
 
+import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -20,9 +20,18 @@ import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.awt.print.Printable;
+import java.awt.print.PageFormat;
+import java.awt.print.Paper;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import javax.imageio.ImageIO;
 
 public class Plan extends JPanel {
     private List<ElementDuPlan> elements;
@@ -34,7 +43,8 @@ public class Plan extends JPanel {
     public Plan() {
         parametres.setPixelsParMetre(50);
         this.elements = new ArrayList<>();
-        this.elements.add(new Terrain(new Point(0,0), 10 * this.parametres.getPixelsParMetre(), 10 * this.parametres.getPixelsParMetre(), "Terrain auto"));
+        this.elements.add(new Terrain(new Point(0, 0), 10 * ParametresPlan.getPixelsParMetre(),
+                10 * ParametresPlan.getPixelsParMetre(), "Terrain auto"));
         ajouterEcouteurs();
     }
 
@@ -86,7 +96,7 @@ public class Plan extends JPanel {
 
     private void dessinerCadrillage(Graphics g) {
         g.setColor(Color.LIGHT_GRAY);
-        int pixelsParMetre = parametres.getPixelsParMetre();
+        int pixelsParMetre = ParametresPlan.getPixelsParMetre();
         int width = getWidth();
         int height = getHeight();
 
@@ -174,15 +184,18 @@ public class Plan extends JPanel {
         ElementDuPlan nouvelElementSelectionne = null;
         for (ElementDuPlan element : elements) {
             if (element.contient(point)) {
-                if (nouvelElementSelectionne == null || (elementSelectionne != null && elementSelectionne.compareTo(element) < 0)) {
+                if (nouvelElementSelectionne == null
+                        || (elementSelectionne != null && elementSelectionne.compareTo(element) < 0)) {
                     nouvelElementSelectionne = element;
                 }
             }
         }
         elementSelectionne = nouvelElementSelectionne;
         if (nouvelElementSelectionne != null) {
-            System.out.println("Élément sélectionné : " + elementSelectionne.getNom() + ", ID : " + elementSelectionne.getId() +
-                               ", Largeur : " + elementSelectionne.getLargeur() + ", Hauteur : " + elementSelectionne.getHauteur());
+            System.out.println(
+                    "Élément sélectionné : " + elementSelectionne.getNom() + ", ID : " + elementSelectionne.getId() +
+                            ", Largeur : " + elementSelectionne.getLargeur() + ", Hauteur : "
+                            + elementSelectionne.getHauteur());
             afficherPoints = true;
         } else {
             System.out.println("Aucun élément sélectionné.");
@@ -208,17 +221,17 @@ public class Plan extends JPanel {
                 if (figure instanceof RectangleEpais) {
                     RectangleEpais rectangle = (RectangleEpais) figure;
                     List<Point> pointsAdjacents = rectangle.trouverPointsAdjacents(pointOriginal);
-    
+
                     if (pointsAdjacents.size() == 3) {
                         // Premier point : varie seulement sur l'axe X
                         Point premierPoint = pointsAdjacents.get(0);
                         premierPoint.setX(nouveauPoint.getX());
-    
+
                         // Deuxième point : point en paramètre
                         Point deuxiemePoint = pointsAdjacents.get(1);
                         deuxiemePoint.setX(nouveauPoint.getX());
                         deuxiemePoint.setY(nouveauPoint.getY());
-    
+
                         // Troisième point : varie seulement sur l'axe Y
                         Point troisiemePoint = pointsAdjacents.get(2);
                         troisiemePoint.setY(nouveauPoint.getY());
@@ -230,8 +243,56 @@ public class Plan extends JPanel {
         }
     }
 
+    public void sauvegarderImage() {
+        int width = this.getWidth();
+        int height = this.getHeight();
+        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        // Dessiner le composant dans l'image
+        Graphics g = bufferedImage.createGraphics();
+        this.paint(g); // utilise paint() pour dessiner l'image
+        g.dispose();
+
+        try {
+            // Sauvegarde l'image dans un fichier
+            File outputFile = new File("plan.png");
+            ImageIO.write(bufferedImage, "png", outputFile);
+            System.out.println("Image sauvegardée : " + outputFile.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Méthode pour imprimer le plan
+    public void imprimerPlan() {
+        PrinterJob job = PrinterJob.getPrinterJob();
+        job.setJobName("Impression du Plan");
+
+        job.setPrintable(new Printable() {
+            @Override
+            public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) {
+                if (pageIndex > 0) {
+                    return NO_SUCH_PAGE;
+                }
+                Graphics g2d = (Graphics) graphics;
+                g2d.translate((int) pageFormat.getImageableX(), (int) pageFormat.getImageableY());
+
+                Plan.this.paint(g2d); // utilise paint() pour dessiner l'image à imprimer
+                return PAGE_EXISTS;
+            }
+        });
+
+        if (job.printDialog()) {
+            try {
+                job.print();
+            } catch (PrinterException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void setPixelsParMetre(int pixelsParMetre) {
-        int ancienneValeur = parametres.getPixelsParMetre();
+        int ancienneValeur = ParametresPlan.getPixelsParMetre();
         parametres.setPixelsParMetre(pixelsParMetre);
         for (ElementDuPlan element : this.elements) {
             element.adapterEchelle(ancienneValeur, pixelsParMetre);

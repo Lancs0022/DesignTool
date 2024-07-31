@@ -1,20 +1,20 @@
 package dessinables.elementsplan;
 
 import dessinables.geometrie.Point;
-import dessinables.geometrie.RectangleEpais;
 import dessinables.geometrie.Vecteur;
 import outils.CalculsVectoriels;
-import plan.ParametresPlan;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Piece extends ElementDuPlan implements Conteneur, Contenu {
     private List<Contenu> contenus;
+    private List<Ouverture> ouvertures;
 
     public Piece(Point pointDepart, double largeur, double hauteur, String nom, Conteneur parent) {
         super(pointDepart, largeur, hauteur, nom, parent);
         this.contenus = new ArrayList<>();
+        this.ouvertures = new ArrayList<>();
     }
 
     public boolean peutAjouterElement(ElementDuPlan element) {
@@ -38,96 +38,79 @@ public class Piece extends ElementDuPlan implements Conteneur, Contenu {
         return true;
     }
 
-    // Nouvelle méthode pour ajouter du contenu collé sur les faces
-    public boolean peutAjouterElementSurFace(Contenu contenu, String face) {
-        Vecteur vecteurContenu = contenu.getVecteur();
-        RectangleEpais rectangle = this.getRectangle();
-        Vecteur faceVecteur;
-
-        // Sélectionner le vecteur correspondant à la face
-        switch (face.toLowerCase()) {
-            case "nord":
-                faceVecteur = rectangle.getFaceNord();
-                break;
-            case "est":
-                faceVecteur = rectangle.getFaceEst();
-                break;
-            case "sud":
-                faceVecteur = rectangle.getFaceSud();
-                break;
-            case "ouest":
-                faceVecteur = rectangle.getFaceOuest();
-                break;
-            default:
-                throw new IllegalArgumentException("Face inconnue : " + face);
-        }
-
-        System.out.println("Face concerné : " + faceVecteur);
-
-        // Vérification de l'alignement du vecteur contenu sur la face sélectionnée
-        if (!estColleSurFace(vecteurContenu, faceVecteur)) {
-            System.out.println("Contenu non aligné sur la face " + face);
-            return false;
-        }
-
-        // Vérifier si le vecteur ne se superpose pas avec les éléments existants
-        for (Contenu existingContent : contenus) {
-            if (CalculsVectoriels.intersect(vecteurContenu, existingContent.getVecteur())) {
-                System.out.println("Collision détectée avec un élément existant sur la face");
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private boolean estColleSurFace(Vecteur vecteur, Vecteur face) {
-        // Vérifie si les vecteurs sont horizontaux ou verticaux
-        boolean horizontal = face.getP1().getY() == face.getP2().getY();
-        boolean vertical = face.getP1().getX() == face.getP2().getX();
-        
-        if (horizontal) {
-            // Vérifie si le vecteur est aligné horizontalement sur la face
-            int minX = Math.min(face.getP1().getX(), face.getP2().getX());
-            int maxX = Math.max(face.getP1().getX(), face.getP2().getX());
-            return vecteur.getP1().getY() == face.getP1().getY() &&
-                   vecteur.getP2().getY() == face.getP2().getY() &&
-                   vecteur.getP1().getX() >= minX &&
-                   vecteur.getP2().getX() <= maxX;
-        } else if (vertical) {
-            // Vérifie si le vecteur est aligné verticalement sur la face
-            int minY = Math.min(face.getP1().getY(), face.getP2().getY());
-            int maxY = Math.max(face.getP1().getY(), face.getP2().getY());
-            return vecteur.getP1().getX() == face.getP1().getX() &&
-                   vecteur.getP2().getX() == face.getP2().getX() &&
-                   vecteur.getP1().getY() >= minY &&
-                   vecteur.getP2().getY() <= maxY;
-        }
-        
-        return false;
-    }
-
     @Override
     public List<Contenu> getElementsFilles() {
         return contenus;
     }
 
     @Override
-    public boolean ajouterElement(ElementDuPlan element) {
-        // if (peutAjouterElement(element)) {
-        //     contenus.add((Contenu) element);
-        //     return true;
-        // }
-        if (peutAjouterElementSurFace((Contenu) element, this.getFace())) {
-            contenus.add((Contenu) element)
+    public boolean ajouterContenu(ElementDuPlan element) {
+        if (peutAjouterElement(element)) {
+            contenus.add((Contenu) element);
             return true;
         }
         return false;
     }
 
+    public void mettreAJourOuverture(Ouverture ouverture) {
+        // Vérifier si l'ouverture existe déjà dans le conteneur
+        for (Ouverture existingOuverture : this.ouvertures) {
+            if (existingOuverture.equals(ouverture)) {
+                // Mettre à jour le vecteur de l'ouverture avec de nouvelles coordonnées
+                existingOuverture.getVecteur().setP1(ouverture.getVecteur().getP1());
+                existingOuverture.getVecteur().setP2(ouverture.getVecteur().getP2());
+                return;
+            }
+        }
+        // Ajouter l'ouverture si elle n'existe pas déjà
+        this.ouvertures.add(ouverture);
+    }
+
+    public List<Ouverture> getOuvertures(String face) {
+        List<Ouverture> ouverturesSurFace = new ArrayList<>();
+        for (Ouverture ouverture : ouvertures) {
+            if (ouverture.getFace().equalsIgnoreCase(face)) {
+                ouverturesSurFace.add(ouverture);
+            }
+        }
+        return ouverturesSurFace;
+    }
+
+    public boolean peutPlacerOuverture(Ouverture ouverture, Conteneur parent, String face) {
+        Vecteur vecteurOuverture = ouverture.getVecteur();
+        Vecteur faceVecteur = parent.trouverFace(face);
+    
+        // Vérifier si les vecteurs sont alignés
+        boolean sontAlignes = CalculsVectoriels.vectSontAlignes(vecteurOuverture, faceVecteur);
+    
+        // Conditions spécifiques pour la face sud
+        boolean p1DansLimites = true;
+        if ("sud".equalsIgnoreCase(face)) {
+            p1DansLimites = vecteurOuverture.getP1().getY() == faceVecteur.getP1().getY() &&
+                            vecteurOuverture.getP2().getY() == faceVecteur.getP1().getY() &&
+                            vecteurOuverture.getP1().getX() >= Math.min(faceVecteur.getP1().getX(), faceVecteur.getP2().getX()) &&
+                            vecteurOuverture.getP2().getX() <= Math.max(faceVecteur.getP1().getX(), faceVecteur.getP2().getX());
+        } else {
+            // Conditions pour les autres faces (nord, est, ouest)
+            p1DansLimites = vecteurOuverture.getP1().getX() >= Math.min(faceVecteur.getP1().getX(), faceVecteur.getP2().getX()) &&
+                            vecteurOuverture.getP2().getX() <= Math.max(faceVecteur.getP1().getX(), faceVecteur.getP2().getX()) &&
+                            vecteurOuverture.getP1().getY() >= Math.min(faceVecteur.getP1().getY(), faceVecteur.getP2().getY()) &&
+                            vecteurOuverture.getP2().getY() <= Math.max(faceVecteur.getP1().getY(), faceVecteur.getP2().getY());
+        }
+    
+        System.out.println("Vecteurs alignés: " + sontAlignes);
+        System.out.println("P1 dans les limites: " + p1DansLimites);
+        System.out.println("Vecteur ouverture: " + vecteurOuverture);
+        System.out.println("Vecteur face: " + faceVecteur);
+    
+        return sontAlignes && p1DansLimites;
+    }
+
     @Override
-    public String getFace() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getFace'");
+    public boolean ajouterOuverture(Ouverture ouverture) {
+        if (ouvertures.add(ouverture)) {
+            return true;
+        }
+        return false;
     }
 }

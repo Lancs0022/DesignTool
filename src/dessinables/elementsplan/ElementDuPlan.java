@@ -70,13 +70,15 @@ public abstract class ElementDuPlan implements Comparable<ElementDuPlan>{
         System.out.println("Création de l'élément : " + nom + " avec ID : " + id + ", Largeur : " + largeur + ", Hauteur : " + hauteur);
     }
 
-    public ElementDuPlan(Point pointDepart, double largeur, String face, Conteneur parent){
+    public ElementDuPlan(Point pointDepart, double largeur, String face, String nom, Conteneur parent){
         this.figures = new ArrayList<>();
         this.ptDepart = pointDepart;
         this.largeur = largeur;
+        this.nom = nom;
         this.parent = parent;
         this.id = idCounter++;
         this.getFigures().add(new Vecteur(pointDepart, this.largeur, face));
+        System.out.println("Largeur fixé à : " + largeur);
         System.out.println("Vecteur créé : " + this.getFigures().get(0).toString());
     }
 
@@ -108,22 +110,13 @@ public abstract class ElementDuPlan implements Comparable<ElementDuPlan>{
     }
 
     public void adapterEchelle(int ancienneValeur, int nouvelleValeur) {
-        System.out.println("largeur avant : " + this.largeur);
-        System.out.println("hauteur avant : " + this.hauteur);
-        System.out.println("ancienneValeur : " + ancienneValeur);
-        System.err.println("nouvelleValeur : " + nouvelleValeur);
         this.largeur = (this.largeur * nouvelleValeur) / ancienneValeur;
         this.hauteur = (this.hauteur * nouvelleValeur) / ancienneValeur;
-        System.out.println("largeur après : " + this.largeur);
-        System.out.println("hauteur après : " + this.hauteur);
 
-        System.out.println("Point de depart avant : " + this.ptDepart.toString());
         this.ptDepart = new Point((int) ((this.ptDepart.getX() * nouvelleValeur) / ancienneValeur),
                                   (int) ((this.ptDepart.getY() * nouvelleValeur) / ancienneValeur));
-        System.out.println("Point de depart après : " + this.ptDepart.toString());
         this.getRectangle().mettreAJourDimensions(this.ptDepart , (int) largeur, (int) hauteur);
     }
-
 
     public void modifierPointFigure(Figure figure, int index, Point nouveauPoint) {
         if (figure instanceof PolygoneEpais) {

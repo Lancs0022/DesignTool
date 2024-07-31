@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import plan.ParametresPlan;
+
 public class Vecteur extends Figure {
     private Point p1;
     private Point p2;
@@ -16,23 +18,47 @@ public class Vecteur extends Figure {
         this.p2 = p2;
     }
 
-    public Vecteur(Point ptDepart, double distance, String orientation){
-        this.p2 = new Point();
+    public Vecteur(Point ptDepart, double distance, String orientation) {
         this.p1 = ptDepart;
-        switch (orientation) {
-            case "Nord":
-            case "Sud" :
+        this.p2 = new Point();
+        distance *= ParametresPlan.getPixelsParMetre();
+    
+        switch (orientation.toLowerCase()) {
+            case "nord":
+                this.p2.setX(ptDepart.getX());
+                this.p2.setY(ptDepart.getY() - (int) distance);
+                break;
+            case "sud":
                 this.p2.setX(ptDepart.getX() + (int) distance);
                 this.p2.setY(ptDepart.getY());
-            break;
-            case "Ouest" :
-            case "Est" :
-                this.p2.setY(ptDepart.getY() + (int) distance);
-                this.p2.setX(ptDepart.getX());
-            break;
-            default:
                 break;
+            case "ouest":
+                this.p2.setX(ptDepart.getX() - (int) distance);
+                this.p2.setY(ptDepart.getY());
+                break;
+            case "est":
+                this.p2.setX(ptDepart.getX() + (int) distance);
+                this.p2.setY(ptDepart.getY());
+                break;
+            default:
+                throw new IllegalArgumentException("Orientation inconnue : " + orientation);
         }
+    }
+
+    public Direction getDirection() {
+        if (p1.getX() == p2.getX()) {
+            // Vecteur vertical
+            return p2.getY() > p1.getY() ? Direction.BAS : Direction.HAUT;
+        } else if (p1.getY() == p2.getY()) {
+            // Vecteur horizontal
+            return p2.getX() > p1.getX() ? Direction.DROITE : Direction.GAUCHE;
+        }
+        // Si le vecteur n'est pas strictement horizontal ou vertical, lever une exception ou gérer autrement
+        throw new IllegalStateException("Le vecteur n'est ni strictement horizontal ni vertical.");
+    }
+
+    public double getLongueur() {
+        return Math.sqrt(Math.pow(p2.getX() - p1.getX(), 2) + Math.pow(p2.getY() - p1.getY(), 2));
     }
 
     public Point getP1() {
@@ -74,5 +100,13 @@ public class Vecteur extends Figure {
     @Override
     public List<Point> getPoints() {
         return Arrays.asList(p1, p2);
+    }
+
+    public void setP1(Point p1) {
+        this.p1 = p1;
+    }
+
+    public void setP2(Point p2) {
+        this.p2 = p2;
     }
 }

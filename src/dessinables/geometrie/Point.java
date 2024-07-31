@@ -8,7 +8,6 @@ import java.util.Objects;
 public class Point extends Figure{
     private int x;
     private int y;
-    private static int pixelsParMetre;
 
     public Point(int x, int y) {
         this.x = x;
@@ -42,6 +41,29 @@ public class Point extends Figure{
     public void translate(int dx, int dy) {
         this.x += dx;
         this.y += dy;
+    }
+
+    public void translateX(int dx) {
+        this.x += dx;
+    }
+
+    public void translateY(int dy) {
+        this.x += dy;
+    }
+
+    public Point decaler(double distance, Direction direction) {
+        switch (direction) {
+            case HAUT:
+                return new Point(x, (int) (y - distance));
+            case BAS:
+                return new Point(x, (int) (y + distance));
+            case GAUCHE:
+                return new Point((int) (x - distance) , y);
+            case DROITE:
+                return new Point((int) (x + distance), y);
+            default:
+                throw new IllegalArgumentException("Direction inconnue : " + direction);
+        }
     }
 
     public boolean estProche(Point autrePoint, int tolerance) {

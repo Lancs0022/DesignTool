@@ -1,11 +1,15 @@
 package dessinables.elementsplan;
 
 import dessinables.geometrie.Point;
+import dessinables.geometrie.Vecteur;
+import outils.CalculsVectoriels;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Terrain extends ElementDuPlan implements Conteneur {
     private List<Contenu> contenus;
+    private List<Ouverture> ouvertures;
 
     public Terrain(Point pointDepart, int largeur, int hauteur, String nom) {
         super(pointDepart, largeur, hauteur, nom);
@@ -32,13 +36,25 @@ public class Terrain extends ElementDuPlan implements Conteneur {
         return true;
     }
 
+    public boolean peutPlacerOuverture(Ouverture ouverture, Conteneur parent, String face) {
+    Vecteur vecteurOuverture = ouverture.getVecteur();
+    Vecteur faceVecteur = parent.trouverFace(face);
+
+    // Vérifie que l'ouverture est dans les limites de la face
+    return CalculsVectoriels.vectSontAlignes(vecteurOuverture, faceVecteur) &&
+           vecteurOuverture.getP1().getX() >= faceVecteur.getP1().getX() &&
+           vecteurOuverture.getP2().getX() <= faceVecteur.getP2().getX() &&
+           vecteurOuverture.getP1().getY() >= faceVecteur.getP1().getY() &&
+           vecteurOuverture.getP2().getY() <= faceVecteur.getP2().getY();
+    }
+
     @Override
     public List<Contenu> getElementsFilles() {
         return contenus;
     }
 
     @Override
-    public boolean ajouterElement(ElementDuPlan element) {
+    public boolean ajouterContenu(ElementDuPlan element) {
         if (element instanceof Maison) {
             if (peutAjouterMaison((Maison) element)) {
                 contenus.add((Contenu) element);
@@ -49,8 +65,18 @@ public class Terrain extends ElementDuPlan implements Conteneur {
     }
 
     @Override
-    public boolean peutAjouterElementSurFace(Contenu element, String face) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'peutAjouterElementSurFace'");
+    public boolean ajouterOuverture(Ouverture ouverture) {
+        if (peutPlacerOuverture(ouverture, parent, nom)) {
+            ouvertures.add(ouverture);
+            return true;
+        }
+        return false;
     }
+
+    @Override
+    public void mettreAJourOuverture(Ouverture ouverture) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'mettreAJourOuverture'");
+    }
+
 }

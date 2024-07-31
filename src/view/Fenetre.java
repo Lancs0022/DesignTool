@@ -26,7 +26,7 @@ public class Fenetre extends JFrame {
 		this.setTitle("Plan designer");
 		this.setSize(1020, 660);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        ImageIcon icon = new ImageIcon("");
+        ImageIcon icon = new ImageIcon("assets\\icons8-app-48.png");
         Image iconImage = icon.getImage();
         Image resizedIcon = iconImage.getScaledInstance(48, 48, Image.SCALE_SMOOTH);
         this.setIconImage(resizedIcon);

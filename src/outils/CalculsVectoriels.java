@@ -18,7 +18,15 @@ public class CalculsVectoriels {
         int dy2 = p4.getY() - p3.getY();
 
         // Vérifier si les vecteurs sont colinéaires (produit vectoriel nul)
-        return (dx1 * dy2 - dy1 * dx2) == 0;
+        boolean sontAlignes = (dx1 * dy2 - dy1 * dx2) == 0;
+        if(sontAlignes) {
+            System.out.println("Les vecteurs : " + v1 + " et " + v2 + " sont allignés");
+            return true;
+        }
+        else {
+            System.out.println("Les vecteurs : " + v1 + " et " + v2 + " ne sont pas allignés !");
+            return false;
+        }
     }
 
     public static boolean vectSontEgaux(Vecteur v1, Vecteur v2) {
@@ -34,6 +42,16 @@ public class CalculsVectoriels {
 
         // Convertir en mètres
         return longueurPixels / pixelParMetre;
+    }
+
+    public static double mesurerVecteur(Vecteur v) {
+        // Calculer la longueur du vecteur en pixels
+        int dx = v.getP2().getX() - v.getP1().getX();
+        int dy = v.getP2().getY() - v.getP1().getY();
+        double longueurPixels = Math.sqrt(dx * dx + dy * dy);
+
+        // Convertir en mètres
+        return longueurPixels;
     }
 
     public static boolean intersect(Vecteur v1, Vecteur v2) {

@@ -25,10 +25,10 @@ public class RectangleEpais extends PolygoneEpais{
     }
 
     public boolean intersects(RectangleEpais other) {
-        return this.getBounds().intersects(other.getBounds());
+        return this.getDelimitations().intersects(other.getDelimitations());
     }
 
-    private java.awt.Rectangle getBounds() {
+    private java.awt.Rectangle getDelimitations() {
         int minX = Integer.MAX_VALUE;
         int minY = Integer.MAX_VALUE;
         int maxX = Integer.MIN_VALUE;
@@ -109,18 +109,31 @@ public class RectangleEpais extends PolygoneEpais{
     }
 
     public int getMinX() {
-        return this.getBounds().x;
+        return this.getDelimitations().x;
     }
 
     public int getMinY() {
-        return this.getBounds().y;
+        return this.getDelimitations().y;
     }
 
     public int getMaxX() {
-        return this.getBounds().x + this.getBounds().width;
+        return this.getDelimitations().x + this.getDelimitations().width;
     }
 
     public int getMaxY() {
-        return this.getBounds().y + this.getBounds().height;
+        return this.getDelimitations().y + this.getDelimitations().height;
+    }
+    
+    public Point getP1() {
+        return this.points.get(0);
+    }
+    public Point getP2() {
+        return this.points.get(1);
+    }
+    public Point getP3() {
+        return this.points.get(2);
+    }
+    public Point getP4() {
+        return this.points.get(3);
     }
 }

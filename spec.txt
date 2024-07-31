@@ -627,3 +627,21 @@ Encore une fois tu n'as pas respecté ce que j'avais dis précédemment : Rectan
 Bien on va reparler de la classe Drawer et la manière dont les portes et les fenêtres sont placés. On va parler d'un concept assez simple pour un Conteneur : la face de celui ci. Un conteneur ou plus précisément le rectangle épais qui le compose ont 4 faces qui sont le Nord, le sud l'est et l'ouest. Donc pour placer une porte ou une fenêtre il faut choisir une face où placer, la largeur de la porte ou la fenêtre et enfin la pièce qui le contiendra. Par défaut, on choisira de placer la porte au milieu d'une face. On demande aussi combien de porte ou de fenêtre on veux pour une face. La porte et la fenêtre sera un peu différent des autres éléments car au lieu d'avoir une rectangle pour les représenter, on va avoir un simple drawline avec une épaisseur.
 
 Je rejette cette idée il faudrait tout au plus des méthodes génériques mais pas toute la classe. On peut n'avoir que les méthodes de générique n'est ce pas ? Déjà, Les setFormFields peuvent normalement être générique. Create elements et gererElements aussi de rigueur. De base je crois qu'on aura pas besoin de tant de généricité c'est juste que je gère mal la polymorphisme de mes classes. Bon il va faloir que tu factorises la méthode genererElements maintenant et on va faire plus explicite comme nom : genererPorteOuFenetres. Il faudrait peut être une interface spéciale pour les portes et les fenêtres non ?
+
+BON j'ai pris du récul par rapport à tout ce qu'on a fait ici et je suis en train de repenser la construction des portes et des fenêtres. Dorénavant, ce ne sont plus des Contenus mais des Ouvertures. Une interface conçu pour les portes et les fenêtres. Ca devrait me faciliter les choses. Ensuite, on va procéder par étape au morcellement des fonctions qu'on a dans la méthode générerElements car j'ai pas l'intention de me servir de cette méthode. Je vais tout simplement ajouter la porte et la fenêtre via la méthode createElement. D'abord les conteneurs ayant l'interface Conteneur auront une méthode Vecteur trouverFace(String face) qui agira comme ceci Vecteur faceVecteur;
+        switch (face) {
+            case "Nord":
+                faceVecteur = parent.getRectangle().getFaceNord();
+                break;
+            case "Est":
+                faceVecteur = parent.getRectangle().getFaceEst();
+                break;
+            case "Sud":
+                faceVecteur = parent.getRectangle().getFaceSud();
+                break;
+            case "Ouest":
+                faceVecteur = parent.getRectangle().getFaceOuest();
+                break;
+            default:
+                throw new IllegalArgumentException("Face inconnue : " + face);
+        } ensuite, faceVecteur.getP1().distance(faceVecteur.getP2()) peut être géré avec double CalculsVectoriels.mesurerVecteur(Vecteur v, int pixelParMetre). Ensuite pour le variable nombreDeSegment c'est pas encore vraiment ça. Il faut recupérer les Ouvertures déjà présents dans Conteneur parent. Conteneur de ce fait possède la méthode getOuvertures qui renvoi une liste des ouvertures présents sur la face indiqué. Pour déterminer le nombre de segments donc, on ajoute nombre avec le nombre d'ouverture renvoyé. Tu mets ce calcul dans une méthode calcul espace par segment.

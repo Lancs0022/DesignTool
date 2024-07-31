@@ -1,6 +1,7 @@
 package controleurs;
 
 import view.ToolBar;
+import plan.ParametresPlan;
 import plan.Plan;
 
 import javax.swing.JButton;
@@ -24,6 +25,7 @@ public class Controleur {
     private void initializeActions() {
         List<JButton> buttons = toolbar.listButtons();
         List<JButton> buttons2 = toolBar2.listButtons();
+        // List<JButton> 
         for (JButton button : buttons) {
             button.addActionListener(new ActionListener() {
                 @Override
@@ -52,7 +54,7 @@ public class Controleur {
     }
 
     private void handleButtonAction2(String actionCommand) {
-        int pixelsParMetre = this.plan.getParametres().getPixelsParMetre();
+        int pixelsParMetre = ParametresPlan.getPixelsParMetre();
         int pas = 10;
         switch (actionCommand) {
             case "Zoom -":
@@ -65,12 +67,17 @@ public class Controleur {
             break;
             
             case "Zoom +":
-            if(pixelsParMetre > 100){
-                break;
-            }
-            else{
-                this.plan.setPixelsParMetre(pixelsParMetre + pas);
-            }
+                if(pixelsParMetre > 100){
+                    break;
+                }
+                else{
+                    this.plan.setPixelsParMetre(pixelsParMetre + pas);
+                }
+            break;
+
+            case "Supprimer la selection":
+                
+            break;
             default:
                 break;
         }
